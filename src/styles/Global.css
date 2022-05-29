@@ -1,0 +1,32 @@
+.Box {
+  color: gray;
+  /* border: solid black 1px; */
+  display: flex;
+  flex-direction: column;
+  /* with direction of flexbox */
+  justify-content: center;
+  /* other direction of flexbox */
+  align-items: center;
+  width: auto;
+  height: 100vh;
+}
+
+.border1 {
+  border: solid black 1px;
+}
+
+.gap {
+  height: 15vh;
+}
+
+.landing_title {
+  font-size: 4em;
+  font-family: helvetica;
+}
+
+.landing_subtitle {
+  font-family: helvetica;
+  font-size: 1.5em;
+  margin: 10px;
+  margin-left: 30px;
+}
