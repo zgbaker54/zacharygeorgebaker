@@ -1,6 +1,5 @@
 .Box {
   color: gray;
-  /* border: solid black 1px; */
   display: flex;
   flex-direction: column;
   /* with direction of flexbox */
@@ -15,18 +14,64 @@
   border: solid black 1px;
 }
 
-.gap {
+.verticalAlginment {
+  align-items: black;
+}
+
+.gap15v {
   height: 15vh;
+}
+
+.gap10h {
+  width: 10vw;
 }
 
 .landing_title {
   font-size: 4em;
   font-family: helvetica;
+  text-align: center;
 }
 
 .landing_subtitle {
   font-family: helvetica;
   font-size: 1.5em;
   margin: 10px;
-  margin-left: 30px;
+  width: 50vw;
+}
+
+.disclosure {
+  font-family: helvetica;
+  width: 50vw;
+}
+
+.widthHalf {
+  width: 50vw
+}
+
+.iconSelections {
+  display: flex;
+  flex-direction: row;
+}
+
+.selectionButton {
+  border: gray solid 2px;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.galleryCaption {
+  font-family: helvetica;
+  font-size: 1.5em;
+  font-style: italic;
+  text-align: center;
+  justify-content: center;
+  width: 50vw;
+  margin: 5vh;
+}
+
+.galleryChart {
+  width: 50vw;
+  height: 50vh;
+  border: gray solid 2px;
+  border-radius: 20px;
 }
