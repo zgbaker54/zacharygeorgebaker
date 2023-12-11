@@ -1,6 +1,5 @@
 .Box {
   color: gray;
-  /* border: solid black 1px; */
   display: flex;
   flex-direction: column;
   /* with direction of flexbox */
@@ -8,25 +7,68 @@
   /* other direction of flexbox */
   align-items: center;
   width: auto;
-  height: 100vh;
 }
 
 .border1 {
   border: solid black 1px;
 }
 
-.gap {
+.gap15v {
   height: 15vh;
+}
+
+.gap10h {
+  width: 10vw;
 }
 
 .landing_title {
   font-size: 4em;
   font-family: helvetica;
+  text-align: center;
+  margin: 40px;
 }
 
 .landing_subtitle {
   font-family: helvetica;
   font-size: 1.5em;
   margin: 10px;
-  margin-left: 30px;
+  max-width: 90vw;
+  width: 1000px;
+}
+
+.disclosure {
+  font-family: helvetica;
+  max-width: 90vw;
+  width: 1000px;
+  margin: 20px;
+}
+
+.iconSelections {
+  display: flex;
+  flex-direction: row;
+}
+
+.selectionButton {
+  border: gray solid 2px;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.galleryCaption {
+  font-family: helvetica;
+  font-size: 1.5em;
+  font-style: italic;
+  text-align: center;
+  justify-content: center;
+  width: 1000px;
+  max-width: 90vw;
+  margin: 5vh;
+}
+
+.galleryChart {
+  height: 50vh;
+  max-width: 90vw;
+  width: 1000px;
+  border: gray solid 2px;
+  border-radius: 20px;
 }
