@@ -7,7 +7,6 @@
   /* other direction of flexbox */
   align-items: center;
   width: auto;
-  height: 100vh;
 }
 
 .border1 {
@@ -30,6 +29,7 @@
   font-size: 4em;
   font-family: helvetica;
   text-align: center;
+  margin: 40px;
 }
 
 .landing_subtitle {
@@ -42,6 +42,7 @@
 .disclosure {
   font-family: helvetica;
   width: 50vw;
+  margin: 20px;
 }
 
 .widthHalf {
@@ -72,6 +73,7 @@
 .galleryChart {
   width: 50vw;
   height: 50vh;
+  min-width: 480px;
   border: gray solid 2px;
   border-radius: 20px;
 }
