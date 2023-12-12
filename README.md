@@ -6,6 +6,8 @@ This repository is a React frontend running on https://www.zacharygeorgebaker.co
 
 ## Local development
 
+Run `npm install` to install dependencies. (first time only)
+
 Run `npm start` to run the frontend on a local server.
 
 ## Deployment
