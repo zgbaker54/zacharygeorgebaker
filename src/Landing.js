@@ -32,7 +32,7 @@ export default function Landing(){
   </Fade>
 
   // Flavor text giving people an idea of what I'm looking for
-  let subtitle_text = '"Motivated and highly organized data-driven programmer from the country\’s top Graduate Biomedical Engineering program. I love to build tools and pipelines that automate and support data organization, visualization, and processing. Seeking a position that leverages my background, skills, and passion in an environment that fosters personal and professional growth."'
+  let subtitle_text = `"Motivated and highly organized data-driven programmer from the country's top Graduate Biomedical Engineering program. I love to build tools and pipelines that automate and support data organization, visualization, and processing. Seeking a position that leverages my background, skills, and passion in an environment that fosters personal and professional growth."`
   let subtitle = <Box>
     <Fade
       in={subtitle_fade0}

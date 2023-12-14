@@ -14,7 +14,6 @@ let get_data = (mode) => {
     } else {
       throw new Error(`Undefined mode: ${mode}`)
     }
-    console.log(mode, y_val)
     data.push({
       "x": i,
       "y": y_val,
@@ -31,6 +30,5 @@ export const line_data = (modes) => {
       "data": get_data(mode)
     }
   })
-  console.log(result)
   return result
 }
