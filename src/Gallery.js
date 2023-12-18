@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Box, Button, Fade } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { ResponsiveLine } from '@nivo/line'
@@ -20,6 +20,14 @@ export default function Gallery(){
     let [gallery_option, set_gallery_option] = useState('backend');  // may be "backend" or "line_plots"
     let [image_url, set_image_url] = useState(null);
     let [image_url_loading, set_image_url_loading] = useState(false);
+
+    // scroll to bottom when the backend is loading or finished
+    const bottomRef = useRef(null);
+    useEffect(() => {
+        if (image_url || image_url_loading){
+            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [image_url_loading, image_url])
 
     // line chart from Nivo
     const MyResponsiveLine = ({ line_data }) => (
@@ -128,18 +136,13 @@ export default function Gallery(){
                 fetch(url, { method: 'POST', headers: headers, body: body })
                     .then(response => response.json())
                     .then(result => {
-                        console.log('result', result)
                         let signed_url = result.signed_url;
-                        console.log('signed_url', signed_url)
                         fetch(signed_url)
                             .then(stream => {
-                                console.log('stream', stream)
                                 return stream.blob()
                             })
                             .then(blob => {
-                                console.log('blob', blob)
                                 let image_url = URL.createObjectURL(blob);
-                                console.log('image_url', image_url)
                                 set_image_url(image_url);
                                 set_image_url_loading(false);
                             })
@@ -156,16 +159,18 @@ export default function Gallery(){
             <img src="/api-gateway_logo.png" alt="missingImg" className="logoImage"/>
             <img src="/s3_logo.png" alt="missingImg" className="logoImage"/>
         </Box>
-        {image_url_loading ?
-            <Box className="galleryCaption">
-                {"Processing on the backend..."}
-            </Box> :
+        <Box ref={bottomRef}>
+            {image_url_loading ?
+                <Box className="galleryCaption">
+                    {"Processing on the backend..."}
+                </Box> :
+                null}
+            {image_url ?
+                <Box className="backendImageBox">
+                    <img src={image_url} alt="missingImg" className="backendImage"/>
+                </Box> :
             null}
-        {image_url ?
-            <Box className="backendImageBox">
-                <img src={image_url} alt="missingImg" className="backendImage"/>
-            </Box> :
-        null}
+        </Box>
     </Box>
 
     // main content
