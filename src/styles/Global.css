@@ -130,3 +130,16 @@
 .fontRed {
   color: red;
 }
+
+.drawingCanvasBox {
+  max-width: 90vw;
+  width: 500px;
+  max-height: 90vw;
+  height: 500px;
+  margin: 20px;
+}
+
+.aiDigitSelectionButtonBox {
+  display: flex;
+  flex-direction: row;
+}

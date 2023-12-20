@@ -3,6 +3,7 @@ import { Box, Button, Fade } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GalleryBackendContent from './GalleryBackendContent';
 import GalleryLinePlotsContent from './GalleryLinePlotsContent'
+import GalleryAiDigitContent from './GalleryAiDigitContent';
 import './styles/Global.css';
 import { fade_duration, selectionButtonSx } from './settings'
 
@@ -17,7 +18,7 @@ export default function Gallery(){
 
     // states
     let [gallery_fade, set_gallery_fade] = useState(false);
-    let [gallery_option, set_gallery_option] = useState('backend');  // may be "backend" or "line_plots"
+    let [gallery_option, set_gallery_option] = useState('ai_digit');  // may be "ai_digit" "backend" or "line_plots"
 
     // gallery content
     let content = <Fade
@@ -45,6 +46,15 @@ export default function Gallery(){
             <Box>
                 <Button
                     sx={{
+                        ...(gallery_option === 'ai_digit' ? {backgroundColor: 'lightBlue'} : {}),
+                        ...selectionButtonSx
+                    }}
+                    onClick={() => {set_gallery_option("ai_digit")}}
+                >
+                    AI DIGIT
+                </Button>
+                <Button
+                    sx={{
                         ...(gallery_option === 'backend' ? {backgroundColor: 'lightBlue'} : {}),
                         ...selectionButtonSx
                     }}
@@ -63,6 +73,8 @@ export default function Gallery(){
                 </Button>
             </Box>
             {
+                gallery_option === "ai_digit" ?
+                    <GalleryAiDigitContent/> :
                 gallery_option === "backend" ?
                     <GalleryBackendContent/> :
                 gallery_option === "line_plots" ?
