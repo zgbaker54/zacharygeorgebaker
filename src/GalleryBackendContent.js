@@ -23,7 +23,7 @@ export default function GalleryBackendContent(){
     // async function to ping the backend
     async function query_backend(){
         console.log('query_backend running');
-        let url = 'https://4uqoc6a5s7.execute-api.us-west-1.amazonaws.com/dev'
+        let url = 'https://4uqoc6a5s7.execute-api.us-west-1.amazonaws.com/dev/regfigs'
         let headers = new Headers();
         headers.append('Content-Type', 'application/json');
         let body = JSON.stringify({
