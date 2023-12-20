@@ -16,7 +16,7 @@ export default function GalleryBackendContent(){
     const bottomRef = useRef(null);
     useEffect(() => {
         if (image_url || image_url_loading || image_url_loading_error){
-            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+            bottomRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [image_url_loading, image_url_loading_error, image_url])
 
@@ -43,11 +43,11 @@ export default function GalleryBackendContent(){
     // content to show for backend exhibit
     let backend_content = <Box className='Box'>
         <Box className="galleryCaption">
-            This exhibit is powered by a Dockerized Python backend  I authored myself and deployed using AWS services - specifically ECR, Lambda,
+            This exhibit is powered by a Dockerized Python API (Flask) backend I authored myself and deployed using AWS services - specifically ECR, Lambda,
             API Gateway, and S3.
             The backend code is committed <a href="https://github.com/zgbaker54/zacharygeorgebaker_backend/tree/main" target='_blank' rel="noreferrer">here</a>.
             <br/> <br/>
-            Use the INITIATE BACKEND button to generate and regress sample data in the backend and then display its result: a matplotlib figure from S3.
+            Use the INITIATE BACKEND button to generate and regress sample data in the backend and then display its result - a matplotlib figure from S3.
         </Box>
         <Button
             sx={selectionButtonSx}
@@ -71,6 +71,7 @@ export default function GalleryBackendContent(){
         </Button>
         <Box className="logoBox">
             <img src="/python_logo.png" alt="missingImg" className="logoImage"/>
+            <img src="/flask_logo.png" alt="missingImg" className="logoImage"/>
             <img src="/docker_logo.png" alt="missingImg" className="logoImage"/>
             <img src="/ecr_logo.png" alt="missingImg" className="logoImage"/>
             <img src="/lambda_logo.png" alt="missingImg" className="logoImage"/>
