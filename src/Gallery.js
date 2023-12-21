@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Box, Button, Fade } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GalleryBackendContent from './GalleryBackendContent';
@@ -11,9 +11,15 @@ import { fade_duration, selectionButtonSx } from './settings'
 export default function Gallery(){
     // Gallery contains exhibits that showcase my techical skillsets.
 
-    // fade gallery in
+    // refs
+    let topRef = useRef(null);
+
+    // gallery startup
     useEffect(() => {
+        // fade gallery in
         set_gallery_fade(true)
+        // scroll to top on gallery startup
+        topRef.current.scrollIntoView({ behavior: 'instant' });
       }, [])
 
     // states
@@ -25,7 +31,7 @@ export default function Gallery(){
         in={gallery_fade}
         timeout={fade_duration}
     >
-        <Box className='Box'>
+        <Box className='Box' ref={topRef}>
             <Box className="galleryTitle">
                 GALLERY
             </Box>
