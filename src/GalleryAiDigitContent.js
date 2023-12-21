@@ -47,6 +47,10 @@ export default function GalleryAiDigitContent(){
     useEffect(() =>{
         setup_canvas_context()
         window.addEventListener("resize", setup_canvas_context, false);
+        // stop scrolling on canvas in mobile
+        canvasRef.current.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        });
     }, [])
 
     // starting the drawing
@@ -60,7 +64,7 @@ export default function GalleryAiDigitContent(){
     }
 
     // ending the drawing
-    const endDrawing = () => {
+    const endDrawing = (event) => {
         ctxRef.current.closePath();
         set_is_drawing(false);
     }
@@ -79,9 +83,9 @@ export default function GalleryAiDigitContent(){
 
     // canvas for drawing
     let drawing_canvas = <canvas
-        onMouseDown={startDrawing}
-        onMouseUp={endDrawing}
-        onMouseMove={draw}
+        onPointerDown={startDrawing}
+        onPointerMove={draw}
+        onPointerUp={endDrawing}
         ref={canvasRef}
         className='border1'
         width="200"
