@@ -78,7 +78,7 @@ export default function GalleryBackendContent(){
             <img src="/api-gateway_logo.png" alt="missingImg" className="logoImage"/>
             <img src="/s3_logo.png" alt="missingImg" className="logoImage"/>
         </Box>
-        <Box ref={bottomRef}>
+        <Box className={"Box"} ref={bottomRef}>
             {image_url_loading ?
                 <Box className="galleryCaption">
                     {"Processing on the backend..."}
