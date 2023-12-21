@@ -80,7 +80,7 @@ export default function Landing(){
   >
     <Box className='disclosure'>
       This is a React frontend coded and deployed (on AWS Amplify) entirely by me - Zachary George Baker. It is intended to demonstrate my
-      ability to program and deploy a full-stack dashboard showcasing data.<br />
+      ability to program and deploy a full-stack dashboard capable of processing and showcasing data.<br />
       The site's frontend code is comitted <a href="https://github.com/zgbaker54/zacharygeorgebaker/tree/master" target='_blank' rel="noreferrer">here</a>.
     </Box>
   </Fade>

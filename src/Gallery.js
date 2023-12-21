@@ -43,10 +43,10 @@ export default function Gallery(){
             <Box className="gallerySubtitle">
                 Exhibits:
             </Box>
-            <Box>
+            <Box className={"exhibitSelectionBox"}>
                 <Button
                     sx={{
-                        ...(gallery_option === 'ai_digit' ? {backgroundColor: 'lightBlue'} : {}),
+                        ...(gallery_option === 'ai_digit' ? {backgroundColor: 'lightBlue', ":hover": {backgroundColor: 'lightBlue'}} : {}),
                         ...selectionButtonSx
                     }}
                     onClick={() => {set_gallery_option("ai_digit")}}
@@ -55,7 +55,7 @@ export default function Gallery(){
                 </Button>
                 <Button
                     sx={{
-                        ...(gallery_option === 'backend' ? {backgroundColor: 'lightBlue'} : {}),
+                        ...(gallery_option === 'backend' ? {backgroundColor: 'lightBlue', ":hover": {backgroundColor: 'lightBlue'}} : {}),
                         ...selectionButtonSx
                     }}
                     onClick={() => {set_gallery_option("backend")}}
@@ -64,7 +64,7 @@ export default function Gallery(){
                 </Button>
                 <Button
                     sx={{
-                        ...(gallery_option === 'line_plots' ? {backgroundColor: 'lightBlue'} : {}),
+                        ...(gallery_option === 'line_plots' ? {backgroundColor: 'lightBlue', ":hover": {backgroundColor: 'lightBlue'}} : {}),
                         ...selectionButtonSx
                     }}
                     onClick={() => {set_gallery_option("line_plots")}}
@@ -72,6 +72,7 @@ export default function Gallery(){
                     LINE PLOTS
                 </Button>
             </Box>
+            <Box className={'exhibitBox'}>
             {
                 gallery_option === "ai_digit" ?
                     <GalleryAiDigitContent/> :
@@ -81,6 +82,7 @@ export default function Gallery(){
                     <GalleryLinePlotsContent /> :
                 `Invalid gallery_option state ${gallery_option}`
             }
+            </Box>
         </Box>
     </Fade>
     return content
