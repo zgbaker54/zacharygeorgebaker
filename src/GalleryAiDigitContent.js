@@ -130,7 +130,7 @@ export default function GalleryAiDigitContent(){
         <Box className="galleryCaption">
             This exhibit showcases the "Hello World" version of Neural Networks - the MNIST Digit classification problem.
             <br/><br/>
-            I built a simple Convolutional Neural Network using TensorFlow Keras to clasify handwritten digits.
+            I built a simple Convolutional Neural Network using TensorFlow Keras to classify handwritten digits.
             <br/><br/>
             Use the canvas below to write a handwritten-number and then click submit to classify it. Known problem: Try to write your digit using the entire canvas.
         </Box>
