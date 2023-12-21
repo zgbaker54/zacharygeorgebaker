@@ -177,7 +177,7 @@ export default function GalleryAiDigitContent(){
                 disabled={submit_button_disabled}
             >SUBMIT</Button>
         </Box>
-        <Box ref={bottomRef}>
+        <Box className={"Box"} ref={bottomRef}>
             {is_predicting ?
                 <Box className="galleryCaption">
                     {"Classifying on the backend..."}
