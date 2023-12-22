@@ -24,7 +24,7 @@ export default function Gallery(){
 
     // states
     let [gallery_fade, set_gallery_fade] = useState(false);
-    let [gallery_option, set_gallery_option] = useState('ai_digit');  // may be "ai_digit" "backend" or "line_plots"
+    let [gallery_option, set_gallery_option] = useState('backend');  // may be "ai_digit" "backend" or "line_plots"
 
     // gallery content
     let content = <Fade
