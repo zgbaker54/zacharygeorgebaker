@@ -45,7 +45,7 @@ export default function Landing(){
 
   // Button linking to Google Doc of my general resume (view-only)
   let resume_button = <Button
-    href="https://drive.google.com/file/d/1-Ljr9O5YdiG322mhwI6Q5QX8ZCQAt1fj/view?usp=sharing"
+    href="https://drive.google.com/file/d/1NeXvNWkr6eeE24B6Zs7va1oA9I4PuS6g/view?usp=sharing"
     target="_blank"
     sx={selectionButtonSx}
   >
