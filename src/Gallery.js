@@ -50,7 +50,7 @@ export default function Gallery(){
                 Exhibits:
             </Box>
             <Box className={"exhibitSelectionBox"}>
-                <Button
+                {/* <Button
                     sx={{
                         ...(gallery_option === 'ai_digit' ? {backgroundColor: 'lightBlue', ":hover": {backgroundColor: 'lightBlue'}} : {}),
                         ...selectionButtonSx
@@ -58,7 +58,7 @@ export default function Gallery(){
                     onClick={() => {set_gallery_option("ai_digit")}}
                 >
                     AI DIGIT
-                </Button>
+                </Button> */}
                 <Button
                     sx={{
                         ...(gallery_option === 'backend' ? {backgroundColor: 'lightBlue', ":hover": {backgroundColor: 'lightBlue'}} : {}),
