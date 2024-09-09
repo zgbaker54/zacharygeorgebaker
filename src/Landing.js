@@ -45,7 +45,7 @@ export default function Landing(){
 
   // Button linking to Google Doc of my general resume (view-only)
   let resume_button = <Button
-    href="https://drive.google.com/file/d/12UpXFV9i1btO7uiZuwosjuKZ8Bl-5G_p/view?usp=sharing"
+    href="https://drive.google.com/file/d/1yFeTU_-okZ6WG43GL4EaOmuDHixhvLZo/view?usp=sharing"
     target="_blank"
     sx={selectionButtonSx}
   >
@@ -79,7 +79,7 @@ export default function Landing(){
     timeout={fade_duration}
   >
     <Box className='disclosure'>
-      This is a React frontend coded and deployed (on AWS Amplify) entirely by me - Zachary George Baker. It is intended to demonstrate my
+      This is a React frontend coded and deployed (on AWS Amplify) entirely by me - Zachary Baker. It is intended to demonstrate my
       ability to program and deploy a full-stack dashboard capable of processing and showcasing data.<br />
       The site's frontend code is comitted <a href="https://github.com/zgbaker54/zacharygeorgebaker/tree/master" target='_blank' rel="noreferrer">here</a>.
     </Box>
