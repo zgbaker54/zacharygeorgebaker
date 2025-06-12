@@ -25,19 +25,24 @@ export default function GalleryBackendContent(){
         console.log('query_backend running');
         let url = `${backendURL}/regfigs`
         let headers = new Headers();
-        headers.append('Content-Type', 'application/json');
-        let body = JSON.stringify({
-            "data_type": "exponential",
-            "regress_type": "exponential"
-        });
-        let response = await fetch(url, { method: 'POST', headers: headers, body: body });
-        let result = await response.json();
-        let signed_url = result.signed_url;
-        let stream = await fetch(signed_url);
-        let blob = await stream.blob()
-        let image_url = URL.createObjectURL(blob);
-        console.log('query_backend finished');
-        return image_url
+        try {
+            headers.append('Content-Type', 'application/json');
+            let body = JSON.stringify({
+                "data_type": "exponential",
+                "regress_type": "exponential"
+            });
+            let response = await fetch(url, { method: 'POST', headers: headers, body: body });
+            let result = await response.json();
+            let signed_url = result.signed_url;
+            let stream = await fetch(signed_url);
+            let blob = await stream.blob()
+            let image_url = URL.createObjectURL(blob);
+            console.log('query_backend finished');
+            return image_url
+        } catch (error) {
+            console.error("Error in query_backend:", error);
+            throw new Error(`${error} - the lambda backend might be waking up, please try again after waiting a few moments.`);
+        }
     }
 
     // content to show for backend exhibit
