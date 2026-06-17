@@ -32,7 +32,7 @@ export default function Landing(){
   </Fade>
 
   // Flavor text giving people an idea of what I'm looking for
-  let subtitle_text = `"I’m a motivated and highly organized software developer. I love to build a wide variety of tools to help support my teammates and customers, whether it’s a backend API microservice, frontend data dashboard, or holistic fullstack solution. In these projects I aim to supercharge my development process and features with AI (LLMs) to unlock a new level of productivity and learning. I’m seeking a position that leverages my background, skills, and passion in an environment that fosters personal and professional growth."`
+  let subtitle_text = `"I’m a motivated and highly organized software developer. I love to build a wide variety of tools to help support my teammates and customers, whether it’s a backend API microservice, frontend data dashboard, or fullstack solution. In these projects I leverage AI (LLMs) to unlock a new level of productivity while maintaining ownership of my contributions. I’m seeking a position that leverages my skills while fostering personal and professional growth."`
   let subtitle = <Box>
     <Fade
       in={subtitle_fade0}
@@ -45,7 +45,7 @@ export default function Landing(){
 
   // Button linking to Google Doc of my general resume (view-only)
   let resume_button = <Button
-    href="https://drive.google.com/file/d/1VzuLPT5CRxx35v2oJ8J9E7t0yfQgsSlN/view?usp=sharing"
+    href="https://drive.google.com/file/d/14CNZODguwlCP1vweM7ZqJ-F-FVPQtUvu/view?usp=sharing"
     target="_blank"
     sx={selectionButtonSx}
   >
