@@ -5,7 +5,7 @@ import './styles/Global.css';
 import { fade_delay, fade_duration, selectionButtonSx } from './settings'
 
 
-export default function Landing(){
+export default function Landing(): React.ReactElement {
   // Landing is the main page, which allows the user to access my Resume (via google docs) or navigate to the Gallery
 
   // fades title in after delay
@@ -32,7 +32,7 @@ export default function Landing(){
   </Fade>
 
   // Flavor text giving people an idea of what I'm looking for
-  let subtitle_text = `"I’m a motivated and highly organized software developer. I love to build a wide variety of tools to help support my teammates and customers, whether it’s a backend API microservice, frontend data dashboard, or fullstack solution. In these projects I leverage AI (LLMs) to unlock a new level of productivity while maintaining ownership of my contributions. I’m seeking a position that leverages my skills while fostering personal and professional growth."`
+  let subtitle_text = `"I'm a motivated and highly organized software developer. I love to build a wide variety of tools to help support my teammates and customers, whether it's a backend API microservice, frontend data dashboard, or fullstack solution. In these projects I leverage AI (LLMs) to unlock a new level of productivity while maintaining ownership of my contributions. I'm seeking a position that leverages my skills while fostering personal and professional growth."`
   let subtitle = <Box>
     <Fade
       in={subtitle_fade0}

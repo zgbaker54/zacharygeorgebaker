@@ -152,3 +152,71 @@
   display: flex;
   flex-direction: row;
 }
+
+/* Visit Metrics Tile Styles */
+.metricsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 24px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.metricTile {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px solid #dee2e6;
+  border-radius: 16px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: default;
+}
+
+.metricTile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: #adb5bd;
+}
+
+.metricIcon {
+  font-size: 2.5em;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+
+.metricLabel {
+  font-family: helvetica, sans-serif;
+  font-size: 1em;
+  font-weight: 600;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.metricValue {
+  font-family: helvetica, sans-serif;
+  font-size: 3em;
+  font-weight: 700;
+  color: #495057;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.metricsHeader {
+  font-family: helvetica, sans-serif;
+  font-size: 1.8em;
+  font-weight: 600;
+  color: #495057;
+  text-align: center;
+  margin: 16px 0 8px 0;
+  width: 100%;
+}

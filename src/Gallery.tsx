@@ -4,27 +4,31 @@ import { Link } from 'react-router-dom';
 import GalleryBackendContent from './GalleryBackendContent';
 import GalleryLinePlotsContent from './GalleryLinePlotsContent'
 import GalleryAiDigitContent from './GalleryAiDigitContent';
+import GalleryVisitMetricsContent from './GalleryVisitMetricsContent';
 import './styles/Global.css';
 import { fade_duration, selectionButtonSx } from './settings'
 
 
-export default function Gallery(){
+type GalleryOption = 'ai_digit' | 'backend' | 'line_plots' | 'visit_metrics'
+
+
+export default function Gallery(): React.ReactElement {
     // Gallery contains exhibits that showcase my techical skillsets.
 
     // refs
-    let topRef = useRef(null);
+    let topRef = useRef<HTMLDivElement>(null);
 
     // gallery startup
     useEffect(() => {
         // fade gallery in
         set_gallery_fade(true)
         // scroll to top on gallery startup
-        topRef.current.scrollIntoView({ behavior: 'instant' });
+        topRef.current?.scrollIntoView({ behavior: 'instant' });
       }, [])
 
     // states
     let [gallery_fade, set_gallery_fade] = useState(false);
-    let [gallery_option, set_gallery_option] = useState('backend');  // may be "ai_digit" "backend" or "line_plots"
+    let [gallery_option, set_gallery_option] = useState<GalleryOption>('visit_metrics');
 
     // gallery content
     let content = <Fade
@@ -77,6 +81,15 @@ export default function Gallery(){
                 >
                     LINE PLOTS
                 </Button>
+                <Button
+                    sx={{
+                        ...(gallery_option === 'visit_metrics' ? {backgroundColor: 'lightBlue', ":hover": {backgroundColor: 'lightBlue'}} : {}),
+                        ...selectionButtonSx
+                    }}
+                    onClick={() => {set_gallery_option("visit_metrics")}}
+                >
+                    VISIT METRICS
+                </Button>
             </Box>
             <Box className={'exhibitBox'}>
             {
@@ -86,6 +99,8 @@ export default function Gallery(){
                     <GalleryBackendContent/> :
                 gallery_option === "line_plots" ?
                     <GalleryLinePlotsContent /> :
+                gallery_option === "visit_metrics" ?
+                    <GalleryVisitMetricsContent /> :
                 `Invalid gallery_option state ${gallery_option}`
             }
             </Box>

@@ -4,24 +4,24 @@ import './styles/Global.css';
 import { selectionButtonSx, backendURL } from './settings'
 
 
-export default function GalleryBackendContent(){
+export default function GalleryBackendContent(): React.ReactElement {
     // GalleryBackendContent showcases a Dockerized Python backend running regressions and delivering matplotlib figures
 
     // states
-    let [image_url, set_image_url] = useState(null);
+    let [image_url, set_image_url] = useState<string | null>(null);
     let [image_url_loading, set_image_url_loading] = useState(false);
-    let [image_url_loading_error, set_image_url_loading_error] = useState(null);
+    let [image_url_loading_error, set_image_url_loading_error] = useState<Error | null>(null);
 
     // scroll to bottom when the query_backend finishes updating state
-    const bottomRef = useRef(null);
+    const bottomRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         if (image_url || image_url_loading || image_url_loading_error){
-            bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
     }, [image_url_loading, image_url_loading_error, image_url])
 
     // async function to ping the backend
-    async function query_backend(){
+    async function query_backend(): Promise<string> {
         console.log('query_backend running');
         let url = `${backendURL}/regfigs`
         let headers = new Headers();
@@ -33,7 +33,7 @@ export default function GalleryBackendContent(){
             });
             let response = await fetch(url, { method: 'POST', headers: headers, body: body });
             let result = await response.json();
-            let signed_url = result.signed_url;
+            let signed_url: string = result.signed_url;
             let stream = await fetch(signed_url);
             let blob = await stream.blob()
             let image_url = URL.createObjectURL(blob);
@@ -65,7 +65,7 @@ export default function GalleryBackendContent(){
                         set_image_url(image_url);
                     })
                     .catch(error => {
-                        set_image_url_loading_error(error)
+                        set_image_url_loading_error(error as Error)
                     })
                     .finally(() => {
                         set_image_url_loading(false);

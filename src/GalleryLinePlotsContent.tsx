@@ -3,14 +3,29 @@ import { ResponsiveLine } from '@nivo/line'
 import './styles/Global.css';
 
 
-export default function GalleryLinePlotsContent(){
+interface LineDataPoint {
+  x: number;
+  y: number | null;
+}
+
+interface LineSeries {
+  id: string;
+  color: string;
+  data: LineDataPoint[];
+}
+
+interface MyResponsiveLineProps {
+  line_data: LineSeries[];
+}
+
+export default function GalleryLinePlotsContent(): React.ReactElement {
     // GalleryLinePlotsContent showcases line plotting powered by Nivo
 
     // helper function to get data for line chart
-    let get_data = (mode) => {
-        let data = []
+    let get_data = (mode: 'linear' | 'exponential' | 'sinusoidal'): LineDataPoint[] => {
+        let data: LineDataPoint[] = []
         for (let i = 0; i < 10; i++){
-          let y_val = null
+          let y_val: number | null = null
           if (mode === 'linear'){
             y_val = i
           } else if (mode ==='exponential'){
@@ -29,8 +44,8 @@ export default function GalleryLinePlotsContent(){
       }
 
     // data for line chart
-    const line_data = (modes) => {
-    let result = modes.map((mode) => {
+    const line_data = (modes: ('linear' | 'exponential' | 'sinusoidal')[]): LineSeries[] => {
+    let result: LineSeries[] = modes.map((mode) => {
         return {
         "id": mode,
         "color": "hsl(291, 70%, 50%)",
@@ -41,7 +56,7 @@ export default function GalleryLinePlotsContent(){
     }
 
     // line chart from Nivo
-    const MyResponsiveLine = ({ line_data }) => (
+    const MyResponsiveLine = ({ line_data }: MyResponsiveLineProps): React.ReactElement => (
         <ResponsiveLine
             data={line_data}
             margin={{ top: 50, right: 110, bottom: 50, left: 60 }}

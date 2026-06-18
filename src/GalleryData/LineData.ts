@@ -1,10 +1,22 @@
-
 // generate line data for a Linear, Exponential, and Sinusoidal signals
 
-let get_data = (mode) => {
-  let data = []
+type Mode = 'linear' | 'exponential' | 'sinusoidal';
+
+interface DataPoint {
+  x: number;
+  y: number | null;
+}
+
+interface Series {
+  id: string;
+  color: string;
+  data: DataPoint[];
+}
+
+let get_data = (mode: Mode): DataPoint[] => {
+  let data: DataPoint[] = []
   for (let i = 0; i < 10; i++){
-    let y_val = null
+    let y_val: number | null = null
     if (mode === 'linear'){
       y_val = i
     } else if (mode ==='exponential'){
@@ -22,8 +34,8 @@ let get_data = (mode) => {
   return data
 }
 
-export const line_data = (modes) => {
-  let result = modes.map((mode) => {
+export const line_data = (modes: Mode[]): Series[] => {
+  let result: Series[] = modes.map((mode: Mode) => {
     return {
       "id": mode,
       "color": "hsl(291, 70%, 50%)",

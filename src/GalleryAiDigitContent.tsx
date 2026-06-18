@@ -4,38 +4,38 @@ import './styles/Global.css';
 import { selectionButtonSx, backendURL } from './settings'
 
 
-export default function GalleryAiDigitContent(){
+export default function GalleryAiDigitContent(): React.ReactElement {
 
     // states
     let [is_drawing, set_is_drawing] = useState(false);
-    let [prediction, set_prediction] = useState(null);
+    let [prediction, set_prediction] = useState<string | null>(null);
     let [is_predicting, set_is_predicting] = useState(false);
-    let [prediction_error, set_prediction_error] = useState(null);
+    let [prediction_error, set_prediction_error] = useState<Error | null>(null);
     let [clear_button_disabled, set_clear_button_disabled] = useState(false);
     let [submit_button_disabled, set_submit_button_disabled] = useState(false);
 
     // refs
-    let canvasRef = useRef(null);
-    let ctxRef = useRef(null);
-    let bottomRef = useRef(null);
+    let canvasRef = useRef<HTMLCanvasElement>(null);
+    let ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+    let bottomRef = useRef<HTMLDivElement>(null);
 
     // scroll to bottom when query_nn_backend finishes updating state
     useEffect(() => {
         if (prediction || is_predicting || prediction_error){
-            bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
     }, [prediction, is_predicting, prediction_error])
 
-    function setup_canvas_context(){
+    function setup_canvas_context(): void {
         console.log('setting canvas context')
         // make canvas fit/scale to container
-        const canvas = canvasRef.current;
+        const canvas = canvasRef.current!;
         canvas.style.width = "100%";
         canvas.style.height = "100%";
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
         // set context to draw 2d black pen strokes
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext("2d")!;
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
         ctx.globalAlpha = 1.0;
@@ -48,15 +48,15 @@ export default function GalleryAiDigitContent(){
         setup_canvas_context()
         window.addEventListener("resize", setup_canvas_context, false);
         // stop scrolling on canvas in mobile
-        canvasRef.current.addEventListener('touchmove', function(event) {
+        canvasRef.current?.addEventListener('touchmove', function(event: TouchEvent) {
             event.preventDefault();
         });
     }, [])
 
     // starting the drawing
-    const startDrawing = (event) => {
-        ctxRef.current.beginPath();
-        ctxRef.current.moveTo(
+    const startDrawing = (event: React.PointerEvent<HTMLCanvasElement>): void => {
+        ctxRef.current?.beginPath();
+        ctxRef.current?.moveTo(
             event.nativeEvent.offsetX,
             event.nativeEvent.offsetY,
         );
@@ -64,21 +64,21 @@ export default function GalleryAiDigitContent(){
     }
 
     // ending the drawing
-    const endDrawing = (event) => {
-        ctxRef.current.closePath();
+    const endDrawing = (): void => {
+        ctxRef.current?.closePath();
         set_is_drawing(false);
     }
 
     // ongoing drawing
-    const draw = (event) => {
+    const draw = (event: React.PointerEvent<HTMLCanvasElement>): void => {
         if (!is_drawing) {
             return
         }
-        ctxRef.current.lineTo(
+        ctxRef.current?.lineTo(
             event.nativeEvent.offsetX,
             event.nativeEvent.offsetY,
         )
-        ctxRef.current.stroke();
+        ctxRef.current?.stroke();
     }
 
     // canvas for drawing
@@ -93,7 +93,7 @@ export default function GalleryAiDigitContent(){
     />
 
     // function to fetch number prediction
-    async function query_nn_backend(image_data){
+    async function query_nn_backend(image_data: ImageData): Promise<string> {
         console.log('query_nn_backend running');
         let url = `${backendURL}/digitNN`
         let headers = new Headers();
@@ -105,15 +105,15 @@ export default function GalleryAiDigitContent(){
         });
         let response = await fetch(url, { method: 'POST', headers: headers, body: body });
         let result = await response.json();
-        let _prediction = result.prediction
+        let _prediction: string = result.prediction
         console.log('query_nn_backend finished');
         return _prediction
     }
 
     // coverts image_data to image_array - a 2D boolean array
-    function compile_image_data(image_data){
-        let image_array = []
-        let row = []
+    function compile_image_data(image_data: ImageData): boolean[][] {
+        let image_array: boolean[][] = []
+        let row: boolean[] = []
         for(let i=0; i<image_data.data.length; i++){
             if (i % 4 !== 3){ continue }
             row.push(image_data.data[i] === 255)
@@ -145,7 +145,7 @@ export default function GalleryAiDigitContent(){
                 onClick={() => {
                     set_prediction(null)
                     set_prediction_error(null)
-                    ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                    ctxRef.current?.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
                     console.log('canvas cleared')
                 }}
                 disabled={clear_button_disabled}
@@ -157,7 +157,7 @@ export default function GalleryAiDigitContent(){
                     set_prediction(null);
                     set_submit_button_disabled(true);
                     set_clear_button_disabled(true);
-                    let image_data = ctxRef.current.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height)
+                    let image_data = ctxRef.current!.getImageData(0, 0, canvasRef.current!.width, canvasRef.current!.height)
                     console.log('image_data', image_data)
                     query_nn_backend(image_data)
                         .then(result => {
@@ -166,7 +166,7 @@ export default function GalleryAiDigitContent(){
                         })
                         .catch(error => {
                             console.log('err', error)
-                            set_prediction_error(error)
+                            set_prediction_error(error as Error)
                         })
                         .finally(() => {
                             set_is_predicting(false);
@@ -202,4 +202,3 @@ export default function GalleryAiDigitContent(){
 
     return ai_digit_content
 }
-
