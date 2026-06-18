@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react';
 import { Box, Button, Fade } from '@mui/material';
 import { Link } from 'react-router-dom';
 import './styles/Global.css';
-import { fade_delay, fade_duration, selectionButtonSx } from './settings'
+import { fade_delay, fade_duration, actionButtonSx } from './settings'
 
 
 export default function Landing(): React.ReactElement {
-  // Landing is the main page, which allows the user to access my Resume (via google docs) or navigate to the Gallery
 
   // fades title in after delay
   useEffect(() => {
@@ -47,7 +46,7 @@ export default function Landing(): React.ReactElement {
   let resume_button = <Button
     href="https://drive.google.com/file/d/1uXOg8102spZeu30_VfxZ9Y_ORHhmh90F/view?usp=sharing"
     target="_blank"
-    sx={selectionButtonSx}
+    sx={actionButtonSx}
   >
     R&Eacute;SUM&Eacute;
   </Button>
@@ -56,20 +55,22 @@ export default function Landing(): React.ReactElement {
   let gallery_button = <Button
     component={Link}
     to="/gallery"
-    sx={selectionButtonSx}
+    sx={actionButtonSx}
   >
     GALLERY
   </Button>
 
-  // organize selection buttons
+  // organize selection buttons with a separator
   let icon_selections = <Fade
     in={icon_selections_fade}
     timeout={fade_duration}
   >
-    <Box className='iconSelections'>
-      {resume_button}
-      <Box className='gap10h'/>
-      {gallery_button}
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, mt: 1 }}>
+      <Box className='landingSeparator' />
+      <Box className='iconSelections'>
+        {resume_button}
+        {gallery_button}
+      </Box>
     </Box>
   </Fade>
 
@@ -78,23 +79,21 @@ export default function Landing(): React.ReactElement {
     in={icon_selections_fade}
     timeout={fade_duration}
   >
-    <Box className='disclosure'>
-      This is a React frontend coded and deployed (on AWS Amplify) entirely by me - Zachary Baker. It is intended to demonstrate my
+    <Box className='disclosure' sx={{ mt: 2 }}>
+      This is a React frontend coded and deployed (on AWS Amplify) entirely by me — Zachary Baker. It is intended to demonstrate my
       ability to program and deploy a full-stack dashboard capable of processing and showcasing data.<br />
-      The site's frontend code is comitted <a href="https://github.com/zgbaker54/zacharygeorgebaker/tree/master" target='_blank' rel="noreferrer">here</a>.
+      The site's frontend code is committed <a href="https://github.com/zgbaker54/zacharygeorgebaker/tree/master" target='_blank' rel="noreferrer">here</a>.
     </Box>
   </Fade>
 
-  // organize all content for Landing
-  let content = <Box
-    className='Box'
-  >
-    {main_title}
-    {subtitle}
-    <Box className='gap15v' />
-    {icon_selections}
-    <Box className='gap15v' />
-    {disclosure}
+  // organize all content for Landing inside a card layout
+  let content = <Box className='landingPage'>
+    <Box className='landingCard'>
+      {main_title}
+      {subtitle}
+      {icon_selections}
+      {disclosure}
+    </Box>
   </Box>
   return content;
 

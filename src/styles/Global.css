@@ -21,31 +21,95 @@
   width: 10vw;
 }
 
+.landingPage {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #ffffff 0%, #f0f2f5 50%, #e8ecf0 100%);
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.landingCard {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 24px;
+  padding: 60px 48px;
+  max-width: 1100px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
 .landing_title {
-  font-size: 4em;
-  font-family: helvetica;
+  font-size: 4.2em;
+  font-family: 'Helvetica Neue', helvetica, sans-serif;
+  font-weight: 700;
   text-align: center;
-  margin: 40px;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #2d3436 0%, #636e72 50%, #2d3436 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
 .landing_subtitle {
-  font-family: helvetica;
-  font-size: 1.5em;
-  margin: 10px;
-  max-width: 90vw;
-  width: 1000px;
+  font-family: 'Helvetica Neue', helvetica, sans-serif;
+  font-size: 1.1em;
+  line-height: 1.7;
+  color: #4a5568;
+  margin: 16px 0;
+  width: 100%;
+  max-width: none;
+  text-align: center;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  padding: 24px 28px;
+  box-sizing: border-box;
 }
 
 .disclosure {
-  font-family: helvetica;
-  max-width: 90vw;
-  width: 1000px;
-  margin: 20px;
+  font-family: 'Helvetica Neue', helvetica, sans-serif;
+  font-size: 0.92em;
+  line-height: 1.65;
+  color: #6c757d;
+  width: 100%;
+  max-width: none;
+  margin: 8px 0 0 0;
+  text-align: center;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  padding: 20px 28px;
+  box-sizing: border-box;
+}
+
+.disclosure a {
+  color: #495057;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease;
+}
+
+.disclosure a:hover {
+  color: #1a73e8;
 }
 
 .iconSelections {
   display: flex;
   flex-direction: row;
+  gap: 16px;
+  margin: 8px 0;
 }
 
 .selectionButton {
@@ -54,78 +118,171 @@
   padding: 10px;
 }
 
+/* Accent separator line between sections */
+.landingSeparator {
+  width: 80px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #adb5bd, #ced4da, #adb5bd);
+  margin: 12px 0;
+}
+
+.galleryPage {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(160deg, #ffffff 0%, #f0f2f5 50%, #e8ecf0 100%);
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.galleryCard {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 24px;
+  padding: 40px 36px;
+  max-width: 1400px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
 .galleryTitle {
   font-size: 3em;
-  font-family: helvetica;
+  font-family: 'Helvetica Neue', helvetica, sans-serif;
+  font-weight: 700;
   text-align: center;
-  margin: 20px;
+  margin: 0 0 4px 0;
+  background: linear-gradient(135deg, #2d3436 0%, #636e72 50%, #2d3436 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
 .gallerySubtitle {
-  font-family: helvetica;
-  font-size: 1.5em;
+  font-family: 'Helvetica Neue', helvetica, sans-serif;
+  font-size: 1em;
+  font-weight: 600;
   text-align: center;
-  justify-content: center;
-  width: 1000px;
-  max-width: 90vw;
-  margin: 5px;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 8px 0 12px 0;
 }
 
 .exhibitBox {
-  width: 95vw;
+  width: 100%;
+  max-width: 1400px;
 }
 
 .exhibitSelectionBox {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 0 0 24px 0;
 }
 
 .galleryCaption {
-  font-family: helvetica;
-  font-size: 1.5em;
-  font-style: italic;
+  font-family: 'Helvetica Neue', helvetica, sans-serif;
+  font-size: 1.05em;
+  line-height: 1.7;
+  color: #4a5568;
   text-align: center;
-  justify-content: center;
   width: 100%;
-  max-width: 90vw;
-  margin: 5vh;
+  max-width: 900px;
+  margin: 16px auto;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  padding: 24px 28px;
+  box-sizing: border-box;
+}
+
+.galleryCaption a {
+  color: #495057;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease;
+}
+
+.galleryCaption a:hover {
+  color: #1a73e8;
 }
 
 .galleryChart {
   height: 50vh;
-  max-width: 90vw;
-  width: 90%;
-  border: gray solid 2px;
+  width: 100%;
+  max-width: 1000px;
+  border: 2px solid #dee2e6;
   border-radius: 20px;
-  margin: 20px;
+  margin: 16px auto;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease;
+}
+
+.galleryChart:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .logoImage {
-  border: gray solid 2px;
-  border-radius: 20px;
-  margin: 10px;
-  width: 7%
+  border: 2px solid #dee2e6;
+  border-radius: 12px;
+  margin: 6px;
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  padding: 4px;
+  background: #ffffff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.logoImage:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
 }
 
 .logoBox {
-  max-width: 90vw;
-  width: 90%;
+  width: 100%;
+  max-width: 700px;
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+  gap: 4px;
+  margin: 8px 0 12px 0;
+  padding: 12px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  box-sizing: border-box;
 }
 
 .backendImage {
-  width: 90%
+  width: 100%;
+  max-width: 900px;
+  border-radius: 16px;
+  border: 2px solid #dee2e6;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .backendImageBox {
-  max-width: 90vw;
   width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: center;
-  margin: 10px
+  margin: 16px 0;
 }
 
 .hr {

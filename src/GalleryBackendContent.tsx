@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Box, Button } from '@mui/material';
 import './styles/Global.css';
-import { selectionButtonSx, backendURL } from './settings'
+import { actionButtonSx, backendURL } from './settings'
 
 
 export default function GalleryBackendContent(): React.ReactElement {
@@ -55,7 +55,7 @@ export default function GalleryBackendContent(): React.ReactElement {
             Use the INITIATE BACKEND button to generate and regress sample data in the backend and then display its result - a matplotlib figure from S3.
         </Box>
         <Button
-            sx={selectionButtonSx}
+            sx={actionButtonSx}
             onClick={()=>{
                 set_image_url_loading(true);
                 set_image_url_loading_error(null);
