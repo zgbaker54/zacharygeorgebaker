@@ -14,7 +14,9 @@
 /** sessionStorage key for the running click count */
 const SessionClicksKey = 'session_clicks'
 /** sessionStorage key for the session start Unix timestamp (seconds) */
-const SessionStartTime = 'session_start_time'
+const SessionStartTimeKey = 'session_start_time'
+/** sessionStorage key for the running total of mouse travel distance (pixels) */
+const SessionMouseTravelKey = 'session_mouse_travel'
 
 /**
  * Read the current click count from sessionStorage.
@@ -36,11 +38,22 @@ export function RecordSessionClick(): number {
 }
 
 /**
- * Internal click handler attached to the `window` by `InitSessionTracking`.
- * Delegates to `RecordSessionClick()` to persist the increment.
+ * Read the accumulated mouse travel distance from sessionStorage.
+ * Returns 0 when no value has been stored yet.
  */
-function HandleMouseClick(event: MouseEvent) {
-    RecordSessionClick()
+export function GetSessionMouseTravelPx(): number {
+    const session_travel = sessionStorage.getItem(SessionMouseTravelKey)
+    return parseInt(session_travel ? session_travel : "0")
+}
+
+/**
+ * Store a new mouse travel distance value to sessionStorage.
+ *
+ * Called on every `mousemove` event by GalleryVisitMetricsContent
+ * to persist the running total of pixels the mouse has moved.
+ */
+export function SetSessionMouseTravelPx(sessionMouseTravelPx: number) {
+    sessionStorage.setItem(SessionMouseTravelKey, sessionMouseTravelPx.toString())
 }
 
 /**
@@ -55,7 +68,7 @@ function GetUnixSecondsNow(): number {
  * @returns Unix seconds, or 0 if no start time has been recorded.
  */
 export function GetSessionStartTimeUnixS(): number {
-    const session_start_time = sessionStorage.getItem(SessionStartTime)
+    const session_start_time = sessionStorage.getItem(SessionStartTimeKey)
     return parseInt(session_start_time ? session_start_time : "0")
 }
 
@@ -63,9 +76,9 @@ export function GetSessionStartTimeUnixS(): number {
  * Store the current Unix time as the session start time.
  * @returns The newly stored timestamp (Unix seconds).
  */
-function SetSessionStartTimeNowUnixS(): number {
+export function SetSessionStartTimeNowUnixS(): number {
     const sessionStartTime = GetUnixSecondsNow()
-    sessionStorage.setItem(SessionStartTime, sessionStartTime.toString())
+    sessionStorage.setItem(SessionStartTimeKey, sessionStartTime.toString())
     return sessionStartTime
 }
 
@@ -81,25 +94,6 @@ export function FormatDurationSeconds(durationSeconds: number): string {
 }
 
 /**
- * Set up global session tracking.
- *
- * Should be called once (typically at app bootstrap). It:
- * 1. Registers a `click` listener on `window` that auto-increments the
- *    session click count on every click.
- * 2. Records the session start time if one hasn't been set yet.
- *
- * @returns A cleanup function that removes the click listener — suitable
- *          for returning from a React `useEffect` or calling on teardown.
- */
-export function InitSessionTracking() {
-    window.addEventListener('click', HandleMouseClick)
-    if (!GetSessionStartTimeUnixS()) {
-        SetSessionStartTimeNowUnixS()
-    }
-    return () => { window.removeEventListener('click', HandleMouseClick) }
-}
-
-/**
  * Compute the elapsed session duration as a human-readable "m:ss" string.
  *
  * Relies on the start timestamp previously stored by `InitSessionTracking`
@@ -111,4 +105,15 @@ export function GetSessionDuration(): string {
     const seconds = durationSeconds % 60
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
 
+}
+
+/**
+ * Detect whether the current browser is running on a mobile device
+ * by inspecting the user-agent string.
+ *
+ * @returns `true` if the user-agent matches common mobile patterns.
+ */
+export function IsMobileDevice(): boolean {
+    const ua = navigator.userAgent
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
 }

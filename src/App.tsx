@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Landing from './Landing'
 import Gallery from './Gallery'
-import {InitSessionTracking} from './utils/utils'
+import MetricsTracker from "./MetricsTracker"
 
 
 
@@ -28,11 +28,6 @@ const routes: RouteConfig[] = [
 ]
 
 export default function App(): React.ReactElement {
-
-    useEffect(() => {
-        return InitSessionTracking()
-    }, [])
-
     return (
         <BrowserRouter>
         <Routes>
@@ -40,7 +35,7 @@ export default function App(): React.ReactElement {
             <Route key={route.path} path={route.path} element={route.element} />
             ))}
         </Routes>
+        <MetricsTracker/>
         </BrowserRouter>
     );
-
 }

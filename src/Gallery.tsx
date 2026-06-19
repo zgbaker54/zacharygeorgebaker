@@ -52,6 +52,12 @@ export default function Gallery(): React.ReactElement {
                 </Box>
                 <Box className={"exhibitSelectionBox"}>
                     <Button
+                        sx={exhibitTabSx(gallery_option === 'visit_metrics')}
+                        onClick={() => {set_gallery_option("visit_metrics")}}
+                    >
+                        VISIT METRICS
+                    </Button>
+                    <Button
                         sx={exhibitTabSx(gallery_option === 'backend')}
                         onClick={() => {set_gallery_option("backend")}}
                     >
@@ -62,12 +68,6 @@ export default function Gallery(): React.ReactElement {
                         onClick={() => {set_gallery_option("line_plots")}}
                     >
                         LINE PLOTS
-                    </Button>
-                    <Button
-                        sx={exhibitTabSx(gallery_option === 'visit_metrics')}
-                        onClick={() => {set_gallery_option("visit_metrics")}}
-                    >
-                        VISIT METRICS
                     </Button>
                 </Box>
                 <Box className={'exhibitBox'}>
