@@ -253,8 +253,6 @@
 }
 
 .logoBox {
-  width: 100%;
-  max-width: 700px;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -262,7 +260,7 @@
   align-items: center;
   gap: 4px;
   margin: 8px 0 12px 0;
-  padding: 12px;
+  padding: 12px 25px 12px 25px;
   background: #f8f9fa;
   border: 1px solid #e9ecef;
   border-radius: 16px;
