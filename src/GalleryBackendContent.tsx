@@ -41,7 +41,7 @@ export default function GalleryBackendContent(): React.ReactElement {
             return image_url
         } catch (error) {
             console.error("Error in query_backend:", error);
-            throw new Error(`${error} - the lambda backend might be waking up, please try again after waiting a few moments.`);
+            throw error;
         }
     }
 
