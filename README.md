@@ -8,6 +8,14 @@ This repository is a React frontend running on https://www.zacharygeorgebaker.co
 
 Run `npm install` to install dependencies. (first time only)
 
+### Environment variables
+
+Create a `.env` file in the project root with the following values:
+
+```env
+VITE_BACKEND_URL=http://localhost:8000
+```
+
 Run `npm start` to run the frontend on a local server.
 
 ### Running locally with HTTPS
@@ -18,7 +26,7 @@ The Device Tilt feature on mobile devices requires a secure context (HTTPS). To 
 HTTPS=true npm start
 ```
 
-This uses Create React App's built-in HTTPS support with a self-signed certificate. Your browser will show a security warning — navigate to `https://localhost:3000` and accept the warning to proceed.
+This uses Create React App's built-in HTTPS support with a self-signed certificate. Your browser will show a security warning — navigate to `https://localhost:5173` and accept the warning to proceed.
 
 ## Deployment
 

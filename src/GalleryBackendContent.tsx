@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Box, Button } from '@mui/material';
 import './styles/Global.css';
-import { actionButtonSx, backendURL } from './settings'
+import { actionButtonSx } from './settings'
 
 
 export default function GalleryBackendContent(): React.ReactElement {
@@ -23,7 +23,7 @@ export default function GalleryBackendContent(): React.ReactElement {
     // async function to ping the backend
     async function query_backend(): Promise<string> {
         console.log('query_backend running');
-        let url = `${backendURL}/regfigs`
+        let url = `${import.meta.env.VITE_BACKEND_URL}/regfigs`
         let headers = new Headers();
         try {
             headers.append('Content-Type', 'application/json');

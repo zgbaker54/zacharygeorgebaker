@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Box, Button } from '@mui/material';
 import './styles/Global.css';
-import { selectionButtonSx, backendURL } from './settings'
+import { selectionButtonSx } from './settings'
 
 
 export default function GalleryAiDigitContent(): React.ReactElement {
@@ -95,7 +95,7 @@ export default function GalleryAiDigitContent(): React.ReactElement {
     // function to fetch number prediction
     async function query_nn_backend(image_data: ImageData): Promise<string> {
         console.log('query_nn_backend running');
-        let url = `${backendURL}/digitNN`
+        let url = `${import.meta.env.VITE_BACKEND_URL}/digitNN`
         let headers = new Headers();
         headers.append('Content-Type', 'application/json');
         let image_array = compile_image_data(image_data)

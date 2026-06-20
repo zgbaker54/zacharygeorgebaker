@@ -18,6 +18,21 @@ const SessionStartTimeKey = 'session_start_time'
 /** sessionStorage key for the running total of mouse travel distance (pixels) */
 const SessionMouseTravelKey = 'session_mouse_travel'
 
+// ── API helper functions ──────────────────────────────────────────────
+export async function GetLandingBio(): Promise<string> {
+    let url = `${import.meta.env.VITE_BACKEND_URL}/getLandingBio`
+    const response = await fetch(url)
+    const data = await response.json()
+    return data.landingBio
+}
+
+export async function GetResumeLink(): Promise<string> {
+    let url = `${import.meta.env.VITE_BACKEND_URL}/getResumeLink`
+    const response = await fetch(url)
+    const data = await response.json()
+    return data.resumeLink
+}
+
 /**
  * Read the current click count from sessionStorage.
  * Returns 0 when no value has been stored yet.
