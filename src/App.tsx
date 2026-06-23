@@ -2,6 +2,7 @@ import React, {useEffect} from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Landing from './Landing'
 import Gallery from './Gallery'
+import Gallery7LettersContent from './Gallery7LettersContent'
 import MetricsTracker from "./MetricsTracker"
 
 
@@ -20,6 +21,10 @@ const routes: RouteConfig[] = [
     {
         path: "/gallery",
         element: <Gallery />,
+    },
+    {
+        path: "/7letters",
+        element: <Gallery7LettersContent />,
     },
     {
         path: "*",

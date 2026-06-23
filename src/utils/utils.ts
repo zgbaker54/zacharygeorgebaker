@@ -33,6 +33,20 @@ export async function GetResumeLink(): Promise<string> {
     return data.resumeLink
 }
 
+interface WordOfTheDay {
+    wordOfTheDay: string;
+    date: string;
+}
+export async function GetWordOfTheDay(): Promise<WordOfTheDay> {
+    let url = `${import.meta.env.VITE_BACKEND_URL}/getWordOfTheDay`
+    const response = await fetch(url)
+    const data = await response.json()
+    if (!data.wordOfTheDay) {
+        throw Error(`Missing Word Of The Day for date ${data.date ? data.date : "unknown"}`)
+    }
+    return data
+}
+
 /**
  * Read the current click count from sessionStorage.
  * Returns 0 when no value has been stored yet.
