@@ -19,6 +19,7 @@ const SessionStartTimeKey = 'session_start_time'
 const SessionMouseTravelKey = 'session_mouse_travel'
 
 // ── API helper functions ──────────────────────────────────────────────
+// Fetch the landing bio text from the backend API.
 export async function GetLandingBio(): Promise<string> {
     let url = `${import.meta.env.VITE_BACKEND_URL}/getLandingBio`
     const response = await fetch(url)
@@ -26,6 +27,7 @@ export async function GetLandingBio(): Promise<string> {
     return data.landingBio
 }
 
+// Fetch the download URL for the resume PDF from the backend API.
 export async function GetResumeLink(): Promise<string> {
     let url = `${import.meta.env.VITE_BACKEND_URL}/getResumeLink`
     const response = await fetch(url)
@@ -37,6 +39,7 @@ interface WordOfTheDay {
     wordOfTheDay: string;
     date: string;
 }
+// Fetch today's word of the day from the backend API (includes the word and its date).
 export async function GetWordOfTheDay(): Promise<WordOfTheDay> {
     let url = `${import.meta.env.VITE_BACKEND_URL}/getWordOfTheDay`
     const response = await fetch(url)
@@ -147,7 +150,7 @@ export function IsMobileDevice(): boolean {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
 }
 
-// ...
+// Validate a 7-letter word against the backend dictionary.
 export async function _7LettersIsValidWord(word: string): Promise<boolean> {
     const url = new URL(`${import.meta.env.VITE_BACKEND_URL}/validate7LetterWord`)
     url.searchParams.append('word', word)
