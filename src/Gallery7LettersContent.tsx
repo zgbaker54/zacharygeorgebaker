@@ -324,7 +324,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
                         className='_7LettersHeaderMenuItem'
                         onClick={() => {
                             const code = window.prompt('Enter admin code:')
-                            if (code === 'zgb') {
+                            if (code?.trim().toLowerCase() === 'zgb') {
                                 resetGuessSequence()
                             }
                             setShowMenu(false)
