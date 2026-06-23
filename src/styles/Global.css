@@ -379,7 +379,6 @@
 ._7LettersContent {
     display: flex;
     flex-direction: column;
-    background: lightblue;
     height: 100svh;
 }
 
@@ -457,6 +456,12 @@
     text-transform: uppercase;
 }
 
+._7LettersKeyboardKey.attempted {
+    background-color: #7a7a7a;
+    opacity: 0.5;
+
+}
+
 ._7LettersKeyboardSpacer {
     flex: 0.5 0 0;
     visibility: hidden;
@@ -470,7 +475,6 @@
     flex-shrink: 1;
     min-height: 0;
     width: 100%;
-    background: lightgreen;
     align-items: center;
     justify-content: center;
     padding: 8px 10px;
@@ -515,7 +519,7 @@
 }
 
 ._7LettersGuessSlotSubmittedWrong {
-    background: gray;
+    background: pink;
 }
 
 ._7LettersGuessSlotActive {
@@ -524,4 +528,30 @@
 
 ._7LettersGuessSlotInactive {
     background: darkgray;
+}
+
+._7LettersSnackbar {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    background-color: yellow;
+    color: black;
+    padding: 12px 24px;
+    border-radius: 4px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.5);
+    font-family: sans-serif;
+    font-weight: bold;
+    pointer-events: none;
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }

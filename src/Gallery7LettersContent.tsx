@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, ChangeEvent, KeyboardEvent, FocusEvent } from 'react';
-import {GetWordOfTheDay} from './utils/utils'
+import {GetWordOfTheDay, _7LettersIsValidWord} from './utils/utils'
 import { Box, Button } from '@mui/material';
 import './styles/Global.css';
 
@@ -14,16 +14,22 @@ export default function Gallery7LettersContent(): React.ReactElement {
         guesses: Guess[];
     }
     interface Guess {
-        letters: string[];
+        letters: GuessLetter[];
         submitted: boolean;
         validWord: boolean | null;
+    }
+    interface GuessLetter {
+        letter: string;
+        evaluation: "exact" | "misplaced" | "wrong" | null;
     }
 
     let [wordOfTheDay, setWordOfTheDay] = useState<string | null>(null)
     let [currentDay, setCurrentDay] = useState<string | null>(null)
-    let [errorMessage, setErrorMessage] = useState<string | null>(null)
+    let [snackbarMessage, setSnackbarMessage] = useState<string | null>(null)
     let [guessSequence, setGuessSequence] = useState<GuessSequence | null>(null)
     let [currentGuessNumber, setCurrentGuessNumber] = useState<number | null>(null)
+    let [isSolved, setIsSolved] = useState<boolean>(false)
+    let [isGameOver, setIsGameOver] = useState<boolean>(false)
 
     const inputRefs = useRef<(HTMLInputElement | null)[][]>([]);
 
@@ -42,14 +48,26 @@ export default function Gallery7LettersContent(): React.ReactElement {
     useEffect(() => {
         GetWordOfTheDay().then(
             (result) => {
-                setWordOfTheDay(result.wordOfTheDay)
+                setWordOfTheDay(result.wordOfTheDay.toUpperCase())
                 setCurrentDay(result.date)
             },
             (error) => {
-                setErrorMessage(`Error loading Word Of The Day: ${error}`)
+                setSnackbarMessage(`Error loading Word Of The Day: ${error}`)
             }
         )
     }, [])
+
+    let snackbarTimeoutId = null
+    const snackBarTimeoutMs = 3000
+    useEffect(() => {
+        if (snackbarMessage === null) { return }
+        if (snackbarTimeoutId) {
+            clearTimeout(snackbarTimeoutId)
+        }
+        setTimeout(() => {
+            setSnackbarMessage(null)
+        }, snackBarTimeoutMs)
+    }, [snackbarMessage])
 
     useEffect(() => {
         if (wordOfTheDay === null) { return }
@@ -63,25 +81,91 @@ export default function Gallery7LettersContent(): React.ReactElement {
     }, [wordOfTheDay, currentDay])
 
     useEffect(() => {
-        console.log("guessSequence", guessSequence)
-        if (guessSequence === null) { return }
-        if (currentDay === null) { return }
-        storeGuessSequence(currentDay)
-        // get current guess number
-        if (guessSequence.guesses.length === 0) {
+        (async () => {
+            if (guessSequence === null) { return }
+            if (currentDay === null) { return }
+            storeGuessSequence(currentDay)
+            // get current guess number
+            if (guessSequence.guesses.length === 0) {
+                initGuessInSequence()
+                return
+            }
+            // validate submision
+            const validatedSubmissions = await validateSubmissions()
+            if (validatedSubmissions) {
+                setGuessSequence(validatedSubmissions)
+                return
+            }
+            // check if player solved the problem
+            for (let guess of guessSequence.guesses) {
+                if (guess.submitted !== true || guess.validWord !== true) { continue }
+                if (guess.letters.every(letter => letter.evaluation === 'exact')) {
+                    setIsSolved(true)
+                    setIsGameOver(true)
+                    return
+                }
+            }
+            setIsSolved(false)
+            // check if player is out of guesses
+            if (guessSequence.guesses.filter(guess => guess.submitted === true && guess.validWord === true).length === numberOfGuesses) {
+                setIsGameOver(true)
+                return
+            }
+            setIsGameOver(false)
+            if (guessSequence.guesses[guessSequence.guesses.length - 1]?.submitted === false) {
+                setCurrentGuessNumber(guessSequence.guesses.length - 1)
+                return
+            }
             initGuessInSequence()
-            return
-        }
-        if (guessSequence.guesses.length === numberOfGuesses) {
-            // TODO: exit condition for game
-            return
-        }
-        if (guessSequence.guesses[guessSequence.guesses.length - 1]?.submitted === false) {
-            setCurrentGuessNumber(guessSequence.guesses.length - 1)
-            return
-        }
-        initGuessInSequence()
+        })()
     }, [guessSequence])
+
+    async function validateSubmissions(): Promise<GuessSequence | null> {
+        if (guessSequence === null) { return null }
+        let newGuessSequence = structuredClone(guessSequence)
+        for (let [guessIdx, guess] of newGuessSequence.guesses.entries()) {
+            if (guess.submitted === true && guess.validWord === null) {
+                const isValidWord = await _7LettersIsValidWord(guess.letters.map((x) => x.letter).join(''))
+                if (isValidWord) {
+                    newGuessSequence.guesses[guessIdx]!.validWord = true
+                    newGuessSequence.guesses[guessIdx]!.letters = annotateLetters(newGuessSequence.guesses[guessIdx]!.letters)
+                } else {
+                    setSnackbarMessage(`Invalid word: ${guess.letters.map((x) => x.letter).join('')}`)
+                    newGuessSequence.guesses[guessIdx]!.submitted = false
+                }
+                return newGuessSequence
+            }
+        }
+        return null
+    }
+
+    function annotateLetters(guessLetters: GuessLetter[]): GuessLetter[] {
+        if (wordOfTheDay === null) { return guessLetters }
+        let answer = wordOfTheDay.split('')
+        let newGuessLetters = structuredClone(guessLetters)
+        // exact
+        let exactIndexes: number[] = []
+        for (let [idx, guessLetter] of newGuessLetters.entries()) {
+            if (guessLetter.letter === answer[idx]) {
+                newGuessLetters[idx]!.evaluation = 'exact'
+                exactIndexes.push(idx)
+            }
+        }
+        answer = answer.map((letter, idx) => {
+            return exactIndexes.includes(idx) ? '' : letter
+        })
+        // misplaced | wrong
+        for (let [idx, guessLetter] of newGuessLetters.entries()) {
+            if (exactIndexes.includes(idx)) { continue }
+            if (answer.includes(guessLetter.letter)) {
+                newGuessLetters[idx]!.evaluation = 'misplaced'
+            } else {
+                newGuessLetters[idx]!.evaluation = 'wrong'
+            }
+        }
+        // return
+        return newGuessLetters
+    }
 
     function getGuessSequenceKey(date: string): string {
         return `7LettersGuessSequence-${currentDay}`
@@ -95,9 +179,13 @@ export default function Gallery7LettersContent(): React.ReactElement {
 
     function retrieveGuessSequence(date: string): GuessSequence | null {
         const guessSequenceString = window.localStorage.getItem(getGuessSequenceKey(date))
-        if (!guessSequenceString) { return null }
-        return JSON.parse(guessSequenceString) as GuessSequence
-
+        if (!guessSequenceString || guessSequenceString === 'undefined') { return null }
+        try {
+            return JSON.parse(guessSequenceString) as GuessSequence
+        } catch (error) {
+            console.error("Corrupted localstorage data found:", error)
+            return null
+        }
     }
 
     function resetGuessSequence() {
@@ -128,7 +216,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
         const currentGuessLetters = newGuessSequence.guesses[currentGuessNumber]?.letters
         if (!currentGuessLetters) { return }
         if (currentGuessLetters.length >= numberOfLetters) { return }
-        currentGuessLetters.push(letter)
+        currentGuessLetters.push({letter: letter, evaluation: null})
         setGuessSequence(newGuessSequence)
     }
 
@@ -146,9 +234,10 @@ export default function Gallery7LettersContent(): React.ReactElement {
     function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
         if (e.key === "Backspace") {
             typeBackspace()
-
+        } else if (e.key === "Enter") {
+            submitCurrentGuess()
         } else if (/^[a-zA-Z]$/.test(e.key)) {
-            typeLetter(e.key)
+            typeLetter(e.key.toUpperCase())
         }
     }
 
@@ -163,10 +252,22 @@ export default function Gallery7LettersContent(): React.ReactElement {
         setGuessSequence(newGuessSequence)
     }
 
+    function isAttemptedKey(key: string): boolean {
+        if (guessSequence === null) { return false }
+        for (let guess of guessSequence.guesses) {
+            if (guess.submitted !== true || guess.validWord !== true) {
+                continue
+            }
+            for (let letter of guess.letters) {
+                if (letter.letter.toUpperCase() === key.toUpperCase()) { return true }
+            }
+        }
+        return false
+    }
+
     const guessRows = <div
         className='_7LettersGuessRows'
         tabIndex={0}
-        onKeyDown={(e) => handleKeyDown(e)}
     >
         {Array.from({ length: numberOfGuesses }).map((_, guessNumber) => {
             return <div
@@ -177,12 +278,18 @@ export default function Gallery7LettersContent(): React.ReactElement {
                     return <div
                         className={`
                             _7LettersGuessSlot
-                            ${currentGuessNumber === guessNumber ? "_7LettersGuessSlotActive" : ""}
-                            ${(currentGuessNumber ? currentGuessNumber : 0) < guessNumber ? "_7LettersGuessSlotInactive" : ""}
+                            ${
+                                guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.evaluation === 'exact' ? "_7LettersGuessSlotSubmittedExact" :
+                                guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.evaluation === 'misplaced' ? "_7LettersGuessSlotSubmittedMisplaced" :
+                                guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.evaluation === 'wrong' ? "_7LettersGuessSlotSubmittedWrong" :
+                                currentGuessNumber === guessNumber ? "_7LettersGuessSlotActive" :
+                                (currentGuessNumber ? currentGuessNumber : 0) < guessNumber ? "_7LettersGuessSlotInactive" :
+                                ""
+                            }
                         `}
                         key={`7LettersGuessSlot${letterNumber}`}
                     >
-                        {guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.toUpperCase()}
+                        {guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.letter.toUpperCase()}
                     </div>
                 })}
             </div>
@@ -190,15 +297,8 @@ export default function Gallery7LettersContent(): React.ReactElement {
     </div>
     
     const header = <div className='_7LettersHeader'>
-        HEADER
-        <button
-            onClick={() => {
-                submitCurrentGuess()
-            }}
-        >
-            SUMBIT
-        </button>
-        <div>
+        7 LETTERS
+        {/* <div>
             {wordOfTheDay}
         </div>
         <div>
@@ -206,7 +306,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
         </div>
         <div>
             {JSON.stringify(guessSequence)}
-        </div>
+        </div> */}
         <button
             onClick={() => {
                 resetGuessSequence()
@@ -231,7 +331,11 @@ export default function Gallery7LettersContent(): React.ReactElement {
                 {rowNum === 1 && <div className="keyboard-spacer" />}
                 {keyboardRow.map((key) => {
                     return <button
-                        className={`_7LettersKeyboardKey ${isSpecialKey(key) ? "specialKey" : ""}`}
+                        className={`
+                            _7LettersKeyboardKey
+                            ${isSpecialKey(key) ? "specialKey" : ""}
+                            ${isAttemptedKey(key) ? "attempted" : ""}
+                        `}
                         key={key}
                         onClick={() => {
                             if (key === '⌫') {
@@ -239,7 +343,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
                                 return
                             }
                             if (key === 'ENTER') {
-                                // TODO: handle submission
+                                submitCurrentGuess()
                             }
                             typeLetter(key)
                         }}
@@ -247,14 +351,40 @@ export default function Gallery7LettersContent(): React.ReactElement {
                         {key}
                     </button>
                 })}
+                {rowNum === 1 && <div className="keyboard-spacer" />}
             </div>
         })}
     </div>
 
-    let content = <div className='_7LettersContent'>
+    const snackbar = <div
+        className='_7LettersSnackbar'
+    >
+        {snackbarMessage}
+    </div>
+
+    const winbar = <div
+        className='_7LettersSnackbar'
+    >
+        Winner!
+    </div>
+
+    const overbar = <div
+        className='_7LettersSnackbar'
+    >
+        <div>loser.</div>
+        <div><i>(answer: {wordOfTheDay})</i></div>
+    </div>
+
+    let content = <div
+        className='_7LettersContent'
+        onKeyDown={(e) => handleKeyDown(e)}
+    >
         {header}
         {guessRows}
         {keyboard}
+        {snackbarMessage ? snackbar : null}
+        {isSolved ? winbar : null}
+        {isGameOver && !isSolved ? overbar : null}
     </div>
 
     return content;

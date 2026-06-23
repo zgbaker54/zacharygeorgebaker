@@ -146,3 +146,12 @@ export function IsMobileDevice(): boolean {
     const ua = navigator.userAgent
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
 }
+
+// ...
+export async function _7LettersIsValidWord(word: string): Promise<boolean> {
+    const url = new URL(`${import.meta.env.VITE_BACKEND_URL}/validate7LetterWord`)
+    url.searchParams.append('word', word)
+    const response = await fetch(url)
+    const data = await response.json()
+    return data.isValid
+}
