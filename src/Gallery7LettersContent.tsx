@@ -1,0 +1,479 @@
+import { useState, useEffect, useRef, ChangeEvent, KeyboardEvent, FocusEvent } from 'react';
+import { GetWordOfTheDay, _7LettersIsValidWord } from './utils/utils'
+import { useNavigate } from 'react-router-dom';
+import './styles/Global.css';
+
+// ── Keyboard layout ──────────────────────────────────────────────────
+const keyboardRow1 = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'];
+const keyboardRow2 = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'];
+const keyboardRow3 = ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '⌫'];
+
+const isSpecialKey = (key: string) => key === 'ENTER' || key === '⌫';
+
+// ── Types ────────────────────────────────────────────────────────────
+interface GuessSequence {
+    date: string;
+    guesses: Guess[];
+}
+interface Guess {
+    letters: GuessLetter[];
+    submitted: boolean;
+    validWord: boolean | null;
+}
+interface GuessLetter {
+    letter: string;
+    evaluation: "exact" | "misplaced" | "wrong" | null;
+}
+
+// ── Component ────────────────────────────────────────────────────────
+export default function Gallery7LettersContent(): React.ReactElement {
+
+    const navigate = useNavigate();
+
+    const numberOfGuesses = 7
+    const numberOfLetters = 7
+
+    // ── State ────────────────────────────────────────────────────────
+    let [wordOfTheDay, setWordOfTheDay] = useState<string | null>(null)
+    let [currentDay, setCurrentDay] = useState<string | null>(null)
+    let [snackbarMessage, setSnackbarMessage] = useState<string | null>(null)
+    let [guessSequence, setGuessSequence] = useState<GuessSequence | null>(null)
+    let [currentGuessNumber, setCurrentGuessNumber] = useState<number | null>(null)
+    let [isSolved, setIsSolved] = useState<boolean>(false)
+    let [showResult, setShowResult] = useState<boolean>(false)
+    let [showMenu, setShowMenu] = useState<boolean>(false)
+
+    const snackbarTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const snackBarTimeoutMs = 3000
+
+    // ── Helpers: persistence ─────────────────────────────────────────
+
+    /** Build the localStorage key for a given date. */
+    function getGuessSequenceKey(date: string): string {
+        return `7LettersGuessSequence-${currentDay}`
+    }
+
+    /** Persist the current guess sequence to localStorage. */
+    function storeGuessSequence(date: string) {
+        if (guessSequence !== null) {
+            window.localStorage.setItem(getGuessSequenceKey(date), JSON.stringify(guessSequence))
+        }
+    }
+
+    /** Load a previously saved guess sequence from localStorage. */
+    function retrieveGuessSequence(date: string): GuessSequence | null {
+        const guessSequenceString = window.localStorage.getItem(getGuessSequenceKey(date))
+        if (!guessSequenceString || guessSequenceString === 'undefined') { return null }
+        try {
+            return JSON.parse(guessSequenceString) as GuessSequence
+        } catch (error) {
+            console.error("Corrupted localstorage data found:", error)
+            return null
+        }
+    }
+
+    /** Reset the guess sequence to a fresh empty state for the current day. */
+    function resetGuessSequence() {
+        if (currentDay === null) { return }
+        setGuessSequence({
+            date: currentDay,
+            guesses: [],
+        })
+    }
+
+    /** Append a new empty guess row to the sequence (up to the max number of guesses). */
+    function initGuessInSequence() {
+        if (guessSequence === null) { return }
+        if (guessSequence.guesses.length >= numberOfGuesses) { return }
+        let newGuessSequence = structuredClone(guessSequence)
+        newGuessSequence.guesses.push({
+            letters: [],
+            submitted: false,
+            validWord: null,
+        })
+        setGuessSequence(newGuessSequence)
+    }
+
+    // ── Helpers: input handling ──────────────────────────────────────
+
+    /** Append a letter to the current guess (up to the word length). */
+    function typeLetter(letter: string) {
+        if (guessSequence === null) { return }
+        if (currentGuessNumber === null) { return }
+        if (letter.length !== 1) { return }
+        let newGuessSequence = structuredClone(guessSequence)
+        const currentGuessLetters = newGuessSequence.guesses[currentGuessNumber]?.letters
+        if (!currentGuessLetters) { return }
+        if (currentGuessLetters.length >= numberOfLetters) { return }
+        currentGuessLetters.push({ letter: letter, evaluation: null })
+        setGuessSequence(newGuessSequence)
+    }
+
+    /** Remove the last letter from the current guess. */
+    function typeBackspace() {
+        if (guessSequence === null) { return }
+        if (currentGuessNumber === null) { return }
+        let newGuessSequence = structuredClone(guessSequence)
+        const currentGuessLetters = newGuessSequence.guesses[currentGuessNumber]?.letters
+        if (!currentGuessLetters) { return }
+        if (currentGuessLetters.length === 0) { return }
+        currentGuessLetters.pop()
+        setGuessSequence(newGuessSequence)
+    }
+
+    /** Mark the current guess as submitted (triggers validation in the effect). */
+    function submitCurrentGuess() {
+        if (guessSequence === null) { return }
+        if (currentGuessNumber === null) { return }
+        let newGuessSequence = structuredClone(guessSequence)
+        const currentGuess = newGuessSequence.guesses[currentGuessNumber]
+        if (currentGuess === undefined) { return }
+        if (currentGuess.letters.length !== numberOfLetters) { return }
+        currentGuess.submitted = true
+        setGuessSequence(newGuessSequence)
+    }
+
+    /** Route keyboard events to the appropriate input handler. */
+    function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+        if (e.key === "Backspace") {
+            typeBackspace()
+        } else if (e.key === "Enter") {
+            submitCurrentGuess()
+        } else if (/^[a-zA-Z]$/.test(e.key)) {
+            typeLetter(e.key.toUpperCase())
+        }
+    }
+
+    // ── Helpers: validation & annotation ─────────────────────────────
+
+    /**
+     * Check all guesses that are marked `submitted` but haven't been
+     * validated yet.  Calls the backend for each one and updates the
+     * guess with the result + letter annotations.
+     */
+    async function validateSubmissions(): Promise<GuessSequence | null> {
+        if (guessSequence === null) { return null }
+        let newGuessSequence = structuredClone(guessSequence)
+        for (let [guessIdx, guess] of newGuessSequence.guesses.entries()) {
+            if (guess.submitted === true && guess.validWord === null) {
+                const isValidWord = await _7LettersIsValidWord(guess.letters.map((x) => x.letter).join(''))
+                if (isValidWord) {
+                    newGuessSequence.guesses[guessIdx]!.validWord = true
+                    newGuessSequence.guesses[guessIdx]!.letters = annotateLetters(newGuessSequence.guesses[guessIdx]!.letters)
+                } else {
+                    setSnackbarMessage(`Invalid word: ${guess.letters.map((x) => x.letter).join('')}`)
+                    newGuessSequence.guesses[guessIdx]!.submitted = false
+                }
+                return newGuessSequence
+            }
+        }
+        return null
+    }
+
+    /**
+     * Compare a guess against the answer and mark each letter as
+     * "exact", "misplaced", or "wrong".
+     */
+    function annotateLetters(guessLetters: GuessLetter[]): GuessLetter[] {
+        if (wordOfTheDay === null) { return guessLetters }
+        let answer = wordOfTheDay.split('')
+        let newGuessLetters = structuredClone(guessLetters)
+        // exact matches
+        let exactIndexes: number[] = []
+        for (let [idx, guessLetter] of newGuessLetters.entries()) {
+            if (guessLetter.letter === answer[idx]) {
+                newGuessLetters[idx]!.evaluation = 'exact'
+                exactIndexes.push(idx)
+            }
+        }
+        answer = answer.map((letter, idx) => {
+            return exactIndexes.includes(idx) ? '' : letter
+        })
+        // misplaced | wrong
+        for (let [idx, guessLetter] of newGuessLetters.entries()) {
+            if (exactIndexes.includes(idx)) { continue }
+            if (answer.includes(guessLetter.letter)) {
+                newGuessLetters[idx]!.evaluation = 'misplaced'
+            } else {
+                newGuessLetters[idx]!.evaluation = 'wrong'
+            }
+        }
+        return newGuessLetters
+    }
+
+    /**
+     * Check whether a given key has already been used in a submitted
+     * valid guess (used to style the on-screen keyboard).
+     */
+    function isAttemptedKey(key: string): boolean {
+        if (guessSequence === null) { return false }
+        for (let guess of guessSequence.guesses) {
+            if (guess.submitted !== true || guess.validWord !== true) {
+                continue
+            }
+            for (let letter of guess.letters) {
+                if (letter.letter.toUpperCase() === key.toUpperCase()) { return true }
+            }
+        }
+        return false
+    }
+
+    // ── Effects ──────────────────────────────────────────────────────
+
+    /** Lock the page scroll while the game is open. */
+    useEffect(() => {
+        const originalOverflow = document.body.style.overflow;
+        const originalHeight = document.body.style.height;
+        document.body.style.overflow = 'hidden';
+        document.body.style.height = '100svh';
+        return () => {
+            document.body.style.overflow = originalOverflow;
+            document.body.style.height = originalHeight;
+        };
+    }, []);
+
+    /** Fetch the word of the day from the backend on mount. */
+    useEffect(() => {
+        GetWordOfTheDay().then(
+            (result) => {
+                setWordOfTheDay(result.wordOfTheDay.toUpperCase())
+                setCurrentDay(result.date)
+            },
+            (error) => {
+                setSnackbarMessage(`Error loading Word Of The Day: ${error}`)
+            }
+        )
+    }, [])
+
+    /** Auto-dismiss the snackbar after a timeout. */
+    useEffect(() => {
+        if (snackbarMessage === null) { return }
+        if (snackbarTimeoutRef.current) {
+            clearTimeout(snackbarTimeoutRef.current)
+        }
+        snackbarTimeoutRef.current = setTimeout(() => {
+            setSnackbarMessage(null)
+        }, snackBarTimeoutMs)
+    }, [snackbarMessage])
+
+    /** Restore a saved game or start a fresh one once the word is loaded. */
+    useEffect(() => {
+        if (wordOfTheDay === null) { return }
+        if (currentDay === null) { return }
+        const storedGuessSequence = retrieveGuessSequence(currentDay)
+        if (!storedGuessSequence) {
+            resetGuessSequence()
+        } else {
+            setGuessSequence(storedGuessSequence)
+        }
+    }, [wordOfTheDay, currentDay])
+
+    /**
+     * Core game-loop effect: runs whenever the guess sequence changes.
+     * Persists to localStorage, validates pending submissions, checks
+     * win/loss conditions, and advances to the next guess row.
+     */
+    useEffect(() => {
+        (async () => {
+            if (guessSequence === null) { return }
+            if (currentDay === null) { return }
+            storeGuessSequence(currentDay)
+
+            // No guesses yet → initialise the first row.
+            if (guessSequence.guesses.length === 0) {
+                initGuessInSequence()
+                return
+            }
+
+            // Validate any newly-submitted guesses.
+            const validatedSubmissions = await validateSubmissions()
+            if (validatedSubmissions) {
+                setGuessSequence(validatedSubmissions)
+                return
+            }
+
+            // Check if the player has solved the puzzle.
+            for (let guess of guessSequence.guesses) {
+                if (guess.submitted !== true || guess.validWord !== true) { continue }
+                if (guess.letters.every(letter => letter.evaluation === 'exact')) {
+                    setIsSolved(true)
+                    setShowResult(true)
+                    return
+                }
+            }
+            setIsSolved(false)
+
+            // Check if the player is out of guesses.
+            if (guessSequence.guesses.filter(guess => guess.submitted === true && guess.validWord === true).length === numberOfGuesses) {
+                setShowResult(true)
+                return
+            }
+
+            // Stay on the current row if it hasn't been submitted yet.
+            if (guessSequence.guesses[guessSequence.guesses.length - 1]?.submitted === false) {
+                setCurrentGuessNumber(guessSequence.guesses.length - 1)
+                return
+            }
+
+            // Otherwise advance to the next row.
+            initGuessInSequence()
+        })()
+    }, [guessSequence])
+
+    // ── Render: guess grid ───────────────────────────────────────────
+
+    const guessRows = <div
+        className='_7LettersGuessRows'
+        tabIndex={0}
+    >
+        {Array.from({ length: numberOfGuesses }).map((_, guessNumber) => {
+            return <div
+                className='_7LettersGuessRow'
+                key={`7LettersGuessRow${guessNumber}`}
+            >
+                {Array.from({ length: numberOfLetters }).map((_, letterNumber) => {
+                    return <div
+                        className={`
+                            _7LettersGuessSlot
+                            ${
+                                guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.evaluation === 'exact' ? "_7LettersGuessSlotSubmittedExact" :
+                                guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.evaluation === 'misplaced' ? "_7LettersGuessSlotSubmittedMisplaced" :
+                                guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.evaluation === 'wrong' ? "_7LettersGuessSlotSubmittedWrong" :
+                                currentGuessNumber === guessNumber ? "_7LettersGuessSlotActive" :
+                                (currentGuessNumber ? currentGuessNumber : 0) < guessNumber ? "_7LettersGuessSlotInactive" :
+                                ""
+                            }
+                        `}
+                        key={`7LettersGuessSlot${letterNumber}`}
+                    >
+                        {guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.letter.toUpperCase()}
+                    </div>
+                })}
+            </div>
+        })}
+    </div>
+
+    // ── Render: header ───────────────────────────────────────────────
+
+    const header = <div className='_7LettersHeader'>
+        <button
+            className='_7LettersHeaderBackButton'
+            onClick={() => navigate('/gallery')}
+        >
+            ← Back
+        </button>
+        <span className='_7LettersHeaderTitle'>7 LETTERS</span>
+        <div className='_7LettersHeaderRight'>
+            <span className='_7LettersHeaderDate'>{currentDay}</span>
+            <div className='_7LettersHeaderMenuContainer'>
+                <button
+                    className='_7LettersHeaderMenuButton'
+                    onClick={() => setShowMenu(!showMenu)}
+                >
+                    ⋯
+                </button>
+                {showMenu && <div className='_7LettersHeaderMenuDropdown'>
+                    <button
+                        className='_7LettersHeaderMenuItem'
+                        onClick={() => {
+                            const code = window.prompt('Enter admin code:')
+                            if (code?.trim().toLowerCase() === 'zgb') {
+                                resetGuessSequence()
+                            }
+                            setShowMenu(false)
+                        }}
+                    >
+                        Admin: Reset Guess Sequence
+                    </button>
+                </div>}
+            </div>
+        </div>
+    </div>
+
+    // ── Render: on-screen keyboard ───────────────────────────────────
+
+    const keyboard = <div className='_7LettersKeyboardDiv'>
+        {[keyboardRow1, keyboardRow2, keyboardRow3].map((keyboardRow, rowNum) => {
+            return <div
+                className={`_7LettersKeyboardRow row${rowNum}`}
+                key={rowNum}
+            >
+                {rowNum === 1 && <div className="keyboard-spacer" />}
+                {keyboardRow.map((key) => {
+                    return <button
+                        className={`
+                            _7LettersKeyboardKey
+                            ${isSpecialKey(key) ? "specialKey" : ""}
+                            ${isAttemptedKey(key) ? "attempted" : ""}
+                        `}
+                        key={key}
+                        onClick={() => {
+                            if (key === '⌫') {
+                                typeBackspace()
+                                return
+                            }
+                            if (key === 'ENTER') {
+                                submitCurrentGuess()
+                            }
+                            typeLetter(key)
+                        }}
+                    >
+                        {key}
+                    </button>
+                })}
+                {rowNum === 1 && <div className="keyboard-spacer" />}
+            </div>
+        })}
+    </div>
+
+    // ── Render: snackbar ─────────────────────────────────────────────
+
+    const snackbar = <div
+        className='_7LettersSnackbar'
+    >
+        {snackbarMessage}
+    </div>
+
+    // ── Render: result overlay ───────────────────────────────────────
+
+    const resultView = showResult ? <div
+        className='_7LettersResultOverlay'
+        onClick={() => setShowResult(false)}
+    >
+        <div
+            className='_7LettersResultModal'
+            onClick={(e) => e.stopPropagation()}
+        >
+            <button
+                className='_7LettersResultCloseButton'
+                onClick={() => setShowResult(false)}
+            >
+                ✕
+            </button>
+            <div className='_7LettersResultTitle'>
+                {isSolved ? 'You Won!' : 'You Lost'}
+            </div>
+            <div className='_7LettersResultAnswer'>
+                The answer was: <strong>{wordOfTheDay}</strong>
+            </div>
+            <div className='_7LettersResultPlayAgain'>
+                Come back tomorrow for a new puzzle!
+            </div>
+        </div>
+    </div> : null
+
+    // ── Render: top-level assembly ───────────────────────────────────
+
+    let content = <div
+        className='_7LettersContent'
+        onKeyDown={(e) => handleKeyDown(e)}
+    >
+        {header}
+        {guessRows}
+        {keyboard}
+        {snackbarMessage ? snackbar : null}
+        {resultView}
+    </div>
+
+    return content;
+}

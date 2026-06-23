@@ -2,14 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { Box, Button, Fade } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GalleryBackendContent from './GalleryBackendContent';
-import GalleryLinePlotsContent from './GalleryLinePlotsContent'
-import GalleryAiDigitContent from './GalleryAiDigitContent';
+import GalleryLinePlotsContent from './GalleryLinePlotsContent';
+import Gallery7LettersContent from './Gallery7LettersContent';
 import GalleryVisitMetricsContent from './GalleryVisitMetricsContent';
 import './styles/Global.css';
 import { fade_duration, exhibitTabSx, smallButtonSx } from './settings'
 
 
-type GalleryOption = 'ai_digit' | 'backend' | 'line_plots' | 'visit_metrics'
+type GalleryOption = 'visit_metrics' | 'backend' | 'line_plots'
 
 
 export default function Gallery(): React.ReactElement {
@@ -69,17 +69,24 @@ export default function Gallery(): React.ReactElement {
                     >
                         LINE PLOTS
                     </Button>
+                    <Button
+                        sx={exhibitTabSx(false)}
+                        component="a"
+                        href="/7letters"
+                    >
+                        7 LETTERS
+                    </Button>
                 </Box>
                 <Box className={'exhibitBox'}>
                 {
-                    gallery_option === "ai_digit" ?
-                        <GalleryAiDigitContent/> :
                     gallery_option === "backend" ?
                         <GalleryBackendContent/> :
                     gallery_option === "line_plots" ?
                         <GalleryLinePlotsContent /> :
                     gallery_option === "visit_metrics" ?
                         <GalleryVisitMetricsContent /> :
+                    gallery_option === "7_letters" ?
+                        <Gallery7LettersContent /> :
                     `Invalid gallery_option state ${gallery_option}`
                 }
                 </Box>
