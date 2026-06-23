@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, ChangeEvent, KeyboardEvent, FocusEvent } from 'react';
 import {GetWordOfTheDay, _7LettersIsValidWord} from './utils/utils'
-import { Box, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import './styles/Global.css';
 
 
 export default function Gallery7LettersContent(): React.ReactElement {
+
+    const navigate = useNavigate();
 
     const numberOfGuesses = 7
     const numberOfLetters = 7
@@ -30,6 +32,8 @@ export default function Gallery7LettersContent(): React.ReactElement {
     let [currentGuessNumber, setCurrentGuessNumber] = useState<number | null>(null)
     let [isSolved, setIsSolved] = useState<boolean>(false)
     let [isGameOver, setIsGameOver] = useState<boolean>(false)
+    let [showResult, setShowResult] = useState<boolean>(false)
+    let [showMenu, setShowMenu] = useState<boolean>(false)
 
     const inputRefs = useRef<(HTMLInputElement | null)[][]>([]);
 
@@ -102,6 +106,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
                 if (guess.letters.every(letter => letter.evaluation === 'exact')) {
                     setIsSolved(true)
                     setIsGameOver(true)
+                    setShowResult(true)
                     return
                 }
             }
@@ -109,6 +114,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
             // check if player is out of guesses
             if (guessSequence.guesses.filter(guess => guess.submitted === true && guess.validWord === true).length === numberOfGuesses) {
                 setIsGameOver(true)
+                setShowResult(true)
                 return
             }
             setIsGameOver(false)
@@ -297,23 +303,38 @@ export default function Gallery7LettersContent(): React.ReactElement {
     </div>
     
     const header = <div className='_7LettersHeader'>
-        7 LETTERS
-        {/* <div>
-            {wordOfTheDay}
-        </div>
-        <div>
-            {currentDay}
-        </div>
-        <div>
-            {JSON.stringify(guessSequence)}
-        </div> */}
         <button
-            onClick={() => {
-                resetGuessSequence()
-            }}
+            className='_7LettersHeaderBackButton'
+            onClick={() => navigate('/gallery')}
         >
-            reset guess sequence
+            ← Back
         </button>
+        <span className='_7LettersHeaderTitle'>7 LETTERS</span>
+        <div className='_7LettersHeaderRight'>
+            <span className='_7LettersHeaderDate'>{currentDay}</span>
+            <div className='_7LettersHeaderMenuContainer'>
+                <button
+                    className='_7LettersHeaderMenuButton'
+                    onClick={() => setShowMenu(!showMenu)}
+                >
+                    ⋯
+                </button>
+                {showMenu && <div className='_7LettersHeaderMenuDropdown'>
+                    <button
+                        className='_7LettersHeaderMenuItem'
+                        onClick={() => {
+                            const code = window.prompt('Enter admin code:')
+                            if (code === 'zgb') {
+                                resetGuessSequence()
+                            }
+                            setShowMenu(false)
+                        }}
+                    >
+                        Admin: Reset Guess Sequence
+                    </button>
+                </div>}
+            </div>
+        </div>
     </div>
 
     const keyboardRow1 = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'];
@@ -362,18 +383,31 @@ export default function Gallery7LettersContent(): React.ReactElement {
         {snackbarMessage}
     </div>
 
-    const winbar = <div
-        className='_7LettersSnackbar'
+    const resultView = showResult ? <div
+        className='_7LettersResultOverlay'
+        onClick={() => setShowResult(false)}
     >
-        Winner!
-    </div>
-
-    const overbar = <div
-        className='_7LettersSnackbar'
-    >
-        <div>loser.</div>
-        <div><i>(answer: {wordOfTheDay})</i></div>
-    </div>
+        <div
+            className='_7LettersResultModal'
+            onClick={(e) => e.stopPropagation()}
+        >
+            <button
+                className='_7LettersResultCloseButton'
+                onClick={() => setShowResult(false)}
+            >
+                ✕
+            </button>
+            <div className='_7LettersResultTitle'>
+                {isSolved ? 'You Won!' : 'You Lost'}
+            </div>
+            <div className='_7LettersResultAnswer'>
+                The answer was: <strong>{wordOfTheDay}</strong>
+            </div>
+            <div className='_7LettersResultPlayAgain'>
+                Come back tomorrow for a new puzzle!
+            </div>
+        </div>
+    </div> : null
 
     let content = <div
         className='_7LettersContent'
@@ -383,8 +417,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
         {guessRows}
         {keyboard}
         {snackbarMessage ? snackbar : null}
-        {isSolved ? winbar : null}
-        {isGameOver && !isSolved ? overbar : null}
+        {resultView}
     </div>
 
     return content;
