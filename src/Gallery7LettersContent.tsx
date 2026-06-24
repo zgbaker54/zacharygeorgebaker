@@ -33,6 +33,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
 
     const numberOfGuesses = 7
     const numberOfLetters = 7
+    const tutorialStorageKey = '7LettersTutorialSeen'
 
     // ── State ────────────────────────────────────────────────────────
     let [wordOfTheDay, setWordOfTheDay] = useState<string | null>(null)
@@ -42,6 +43,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
     let [currentGuessNumber, setCurrentGuessNumber] = useState<number | null>(null)
     let [isSolved, setIsSolved] = useState<boolean>(false)
     let [showResult, setShowResult] = useState<boolean>(false)
+    let [showTutorial, setShowTutorial] = useState<boolean>(!window.localStorage.getItem(tutorialStorageKey))
     let [showMenu, setShowMenu] = useState<boolean>(false)
 
     const snackbarTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -75,6 +77,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
 
     /** Reset the guess sequence to a fresh empty state for the current day. */
     function resetGuessSequence() {
+        window.localStorage.removeItem(tutorialStorageKey)
         if (currentDay === null) { return }
         setGuessSequence({
             date: currentDay,
@@ -382,6 +385,15 @@ export default function Gallery7LettersContent(): React.ReactElement {
                     <button
                         className='_7LettersHeaderMenuItem'
                         onClick={() => {
+                            setShowTutorial(true)
+                            setShowMenu(false)
+                        }}
+                    >
+                        How to Play
+                    </button>
+                    <button
+                        className='_7LettersHeaderMenuItem'
+                        onClick={() => {
                             const code = window.prompt('Enter admin code:')
                             if (code?.trim().toLowerCase() === 'zgb') {
                                 resetGuessSequence()
@@ -440,6 +452,84 @@ export default function Gallery7LettersContent(): React.ReactElement {
         {snackbarMessage}
     </div>
 
+    // ── Render: tutorial overlay ─────────────────────────────────────
+
+    function dismissTutorial() {
+        window.localStorage.setItem(tutorialStorageKey, 'true')
+        setShowTutorial(false)
+    }
+
+    const tutorialView = showTutorial ? <div
+        className='_7LettersTutorialOverlay'
+        onClick={dismissTutorial}
+    >
+        <div
+            className='_7LettersTutorialModal'
+            onClick={(e) => e.stopPropagation()}
+        >
+            <button
+                className='_7LettersTutorialCloseButton'
+                onClick={dismissTutorial}
+            >
+                ✕
+            </button>
+            <div className='_7LettersTutorialTitle'>
+                How to Play
+            </div>
+            <div className='_7LettersTutorialSubtitle'>
+                Guess the 7-letter word in 7 tries.
+            </div>
+            <div className='_7LettersTutorialSection'>
+                <div className='_7LettersTutorialExample'>
+                    <div className='_7LettersTutorialRow'>
+                        <div className='_7LettersTutorialSlot exact'>S</div>
+                        <div className='_7LettersTutorialSlot'>C</div>
+                        <div className='_7LettersTutorialSlot'>O</div>
+                        <div className='_7LettersTutorialSlot'>R</div>
+                        <div className='_7LettersTutorialSlot'>I</div>
+                        <div className='_7LettersTutorialSlot'>N</div>
+                        <div className='_7LettersTutorialSlot'>G</div>
+                    </div>
+                </div>
+                <div className='_7LettersTutorialLabel'>
+                    <strong>S</strong> is in the correct position.
+                </div>
+            </div>
+            <div className='_7LettersTutorialSection'>
+                <div className='_7LettersTutorialExample'>
+                    <div className='_7LettersTutorialRow'>
+                        <div className='_7LettersTutorialSlot'>B</div>
+                        <div className='_7LettersTutorialSlot misplaced'>A</div>
+                        <div className='_7LettersTutorialSlot'>N</div>
+                        <div className='_7LettersTutorialSlot'>A</div>
+                        <div className='_7LettersTutorialSlot'>N</div>
+                        <div className='_7LettersTutorialSlot'>A</div>
+                        <div className='_7LettersTutorialSlot'>S</div>
+                    </div>
+                </div>
+                <div className='_7LettersTutorialLabel'>
+                    <strong>A</strong> is in the word but in the wrong position.
+                </div>
+            </div>
+            <div className='_7LettersTutorialSection'>
+                <div className='_7LettersTutorialExample'>
+                    <div className='_7LettersTutorialRow'>
+                        <div className='_7LettersTutorialSlot'>H</div>
+                        <div className='_7LettersTutorialSlot'>E</div>
+                        <div className='_7LettersTutorialSlot'>L</div>
+                        <div className='_7LettersTutorialSlot wrong'>P</div>
+                        <div className='_7LettersTutorialSlot'>I</div>
+                        <div className='_7LettersTutorialSlot'>N</div>
+                        <div className='_7LettersTutorialSlot'>G</div>
+                    </div>
+                </div>
+                <div className='_7LettersTutorialLabel'>
+                    <strong>P</strong> is not in the word.
+                </div>
+            </div>
+        </div>
+    </div> : null
+
     // ── Render: result overlay ───────────────────────────────────────
 
     const resultView = showResult ? <div
@@ -479,6 +569,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
         {keyboard}
         {snackbarMessage ? snackbar : null}
         {resultView}
+        {tutorialView}
     </div>
 
     return content;

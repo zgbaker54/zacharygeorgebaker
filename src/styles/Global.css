@@ -721,3 +721,124 @@
     margin-top: 4px;
     font-style: italic;
 }
+
+/* ── Tutorial overlay ──────────────────────────────────────────────── */
+
+._7LettersTutorialOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out forwards;
+}
+
+._7LettersTutorialModal {
+    background: white;
+    border-radius: 16px;
+    padding: 32px 40px;
+    min-width: 280px;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    animation: fadeIn 0.2s ease-out forwards;
+}
+
+._7LettersTutorialCloseButton {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 4px 8px;
+    border-radius: 4px;
+    line-height: 1;
+}
+
+._7LettersTutorialCloseButton:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+._7LettersTutorialTitle {
+    font-family: sans-serif;
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+}
+
+._7LettersTutorialSubtitle {
+    font-family: sans-serif;
+    font-size: 0.95em;
+    color: #666;
+    text-align: center;
+    margin-top: -8px;
+}
+
+._7LettersTutorialSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+._7LettersTutorialExample {
+    display: flex;
+    justify-content: center;
+}
+
+._7LettersTutorialRow {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+}
+
+._7LettersTutorialSlot {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid gray;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    color: black;
+    background: lightgray;
+    box-sizing: border-box;
+}
+
+._7LettersTutorialSlot.exact {
+    background: lightgreen;
+}
+
+._7LettersTutorialSlot.misplaced {
+    background: lightyellow;
+}
+
+._7LettersTutorialSlot.wrong {
+    background: darkgrey;
+}
+
+._7LettersTutorialLabel {
+    font-family: sans-serif;
+    font-size: 0.85em;
+    color: #555;
+    text-align: center;
+}
