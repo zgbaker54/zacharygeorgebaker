@@ -208,6 +208,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
     // return the letter state of the provided key based on the current guessSequence
     function getLetterState(key: string): LetterState {
         if (guessSequence === null) { return null }
+        let foundWrongState: boolean = false
         let foundMisplacedState: boolean = false
         for (let guess of guessSequence.guesses) {
             if (guess.submitted !== true || guess.validWord !== true) {
@@ -220,11 +221,11 @@ export default function Gallery7LettersContent(): React.ReactElement {
                 } else if (guessLetter.evaluation === 'misplaced') {
                     foundMisplacedState = true
                 } else if (guessLetter.evaluation === 'wrong') {
-                    return 'wrong'
+                    foundWrongState = true
                 }
             }
         }
-        return foundMisplacedState ? 'misplaced' : null
+        return foundMisplacedState ? 'misplaced' : foundWrongState ? 'wrong' : null
     }
 
     // ── Effects ──────────────────────────────────────────────────────
