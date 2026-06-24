@@ -489,7 +489,9 @@
     gap: 6px;
     padding: 8px;
     background: #d1d5db;
-    width: 100svw;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
     height: 35svh;
     min-height: 200px;
     max-height: 350px;
