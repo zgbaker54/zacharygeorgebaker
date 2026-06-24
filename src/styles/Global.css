@@ -550,10 +550,17 @@
     text-transform: uppercase;
 }
 
-._7LettersKeyboardKey.attempted {
-    background-color: #7a7a7a;
-    opacity: 0.5;
+._7LettersKeyboardKey.exact {
+    background-color: lightgreen;
+}
 
+._7LettersKeyboardKey.misplaced {
+    background-color: lightyellow;
+}
+
+._7LettersKeyboardKey.wrong {
+    background-color: darkgrey;
+    color: grey;
 }
 
 ._7LettersKeyboardSpacer {
@@ -602,26 +609,19 @@
     font-weight: bold;
     color: black;
     box-sizing: border-box;
-}
-
-._7LettersGuessSlotSubmittedExact {
-    background: lightgreen;
-}
-
-._7LettersGuessSlotSubmittedMisplaced {
-    background: lightyellow;
-}
-
-._7LettersGuessSlotSubmittedWrong {
-    background: pink;
-}
-
-._7LettersGuessSlotActive {
     background: lightgray;
 }
 
-._7LettersGuessSlotInactive {
-    background: darkgray;
+._7LettersGuessSlot.exact {
+    background: lightgreen;
+}
+
+._7LettersGuessSlot.misplaced {
+    background: lightyellow;
+}
+
+._7LettersGuessSlot.wrong {
+    background-color: darkgrey;
 }
 
 ._7LettersSnackbar {

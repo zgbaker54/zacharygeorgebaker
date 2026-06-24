@@ -11,6 +11,7 @@ const keyboardRow3 = ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '⌫'];
 const isSpecialKey = (key: string) => key === 'ENTER' || key === '⌫';
 
 // ── Types ────────────────────────────────────────────────────────────
+type LetterState = "exact" | "misplaced" | "wrong" | null;
 interface GuessSequence {
     date: string;
     guesses: Guess[];
@@ -22,7 +23,7 @@ interface Guess {
 }
 interface GuessLetter {
     letter: string;
-    evaluation: "exact" | "misplaced" | "wrong" | null;
+    evaluation: LetterState;
 }
 
 // ── Component ────────────────────────────────────────────────────────
@@ -201,21 +202,26 @@ export default function Gallery7LettersContent(): React.ReactElement {
         return newGuessLetters
     }
 
-    /**
-     * Check whether a given key has already been used in a submitted
-     * valid guess (used to style the on-screen keyboard).
-     */
-    function isAttemptedKey(key: string): boolean {
-        if (guessSequence === null) { return false }
+    // return the letter state of the provided key based on the current guessSequence
+    function getLetterState(key: string): LetterState {
+        if (guessSequence === null) { return null }
+        let foundMisplacedState: boolean = false
         for (let guess of guessSequence.guesses) {
             if (guess.submitted !== true || guess.validWord !== true) {
                 continue
             }
-            for (let letter of guess.letters) {
-                if (letter.letter.toUpperCase() === key.toUpperCase()) { return true }
+            for (let guessLetter of guess.letters) {
+                if (guessLetter.letter !== key) { continue }
+                if (guessLetter.evaluation === 'exact') {
+                    return 'exact'
+                } else if (guessLetter.evaluation === 'misplaced') {
+                    foundMisplacedState = true
+                } else if (guessLetter.evaluation === 'wrong') {
+                    return 'wrong'
+                }
             }
         }
-        return false
+        return foundMisplacedState ? 'misplaced' : null
     }
 
     // ── Effects ──────────────────────────────────────────────────────
@@ -240,7 +246,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
                 setCurrentDay(result.date)
             },
             (error) => {
-                setSnackbarMessage(`Error loading Word Of The Day: ${error}`)
+                window.alert(`Whoops. There was an error loading the Word Of The Day 😕 Go bother Zach to fix it. (${error})`)
             }
         )
     }, [])
@@ -336,10 +342,10 @@ export default function Gallery7LettersContent(): React.ReactElement {
                         className={`
                             _7LettersGuessSlot
                             ${
-                                guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.evaluation === 'exact' ? "_7LettersGuessSlotSubmittedExact" :
-                                guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.evaluation === 'misplaced' ? "_7LettersGuessSlotSubmittedMisplaced" :
-                                guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.evaluation === 'wrong' ? "_7LettersGuessSlotSubmittedWrong" :
-                                currentGuessNumber === guessNumber ? "_7LettersGuessSlotActive" :
+                                guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.evaluation === 'exact' ? "exact" :
+                                guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.evaluation === 'misplaced' ? "misplaced" :
+                                guessSequence?.guesses[guessNumber]?.letters[letterNumber]?.evaluation === 'wrong' ? "wrong" :
+                                currentGuessNumber === guessNumber ? "_7LettersGuessSlot" :
                                 (currentGuessNumber ? currentGuessNumber : 0) < guessNumber ? "_7LettersGuessSlotInactive" :
                                 ""
                             }
@@ -404,7 +410,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
                         className={`
                             _7LettersKeyboardKey
                             ${isSpecialKey(key) ? "specialKey" : ""}
-                            ${isAttemptedKey(key) ? "attempted" : ""}
+                            ${getLetterState(key)}
                         `}
                         key={key}
                         onClick={() => {
