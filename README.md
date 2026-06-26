@@ -13,10 +13,12 @@ Run `npm install` to install dependencies. (first time only)
 Create a `.env` file in the project root with the following values:
 
 ```env
-VITE_BACKEND_URL=http://localhost:8000
+VITE_BACKEND_URL=http://127.0.0.1:8000
 ```
 
 Run `npm start` to run the frontend on a local server.
+
+> **Note:** The backend service ([`zacharygeorgebaker_backend`](https://github.com/zgbaker54/zacharygeorgebaker_backend)) must be running locally for many features of the frontend to work properly. The `VITE_BACKEND_URL` environment variable (above) tells the frontend where to find it.
 
 ### Running locally with HTTPS
 
