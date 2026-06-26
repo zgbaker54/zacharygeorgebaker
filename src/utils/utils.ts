@@ -1,3 +1,12 @@
+import {
+    GuessSequence,
+    _7LettersAnnotate7LettersGuessSequenceSuccessResponse,
+    _7LettersAnnotate7LettersGuessSequenceErrorResponse,
+    WordOfTheDayConfirmation,
+    WordOfTheDay,
+} from '../types/_7LettersTypes'
+
+
 /**
  * utils.ts
  *
@@ -35,18 +44,19 @@ export async function GetResumeLink(): Promise<string> {
     return data.resumeLink
 }
 
-interface WordOfTheDay {
-    wordOfTheDay: string;
-    date: string;
+// Fetch today's word of the day from the backend API (includes the word and its date).
+export async function ConfirmWordOfTheDay(): Promise<WordOfTheDayConfirmation> {
+    let url = `${import.meta.env.VITE_BACKEND_URL}/confirmWordOfTheDay`
+    const response = await fetch(url)
+    const data = await response.json()
+    return data as WordOfTheDayConfirmation
 }
+
 // Fetch today's word of the day from the backend API (includes the word and its date).
 export async function GetWordOfTheDay(): Promise<WordOfTheDay> {
     let url = `${import.meta.env.VITE_BACKEND_URL}/getWordOfTheDay`
     const response = await fetch(url)
     const data = await response.json()
-    if (!data.wordOfTheDay) {
-        throw Error(`Missing Word Of The Day for date ${data.date ? data.date : "unknown"}`)
-    }
     return data
 }
 
@@ -150,11 +160,29 @@ export function IsMobileDevice(): boolean {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
 }
 
-// Validate a 7-letter word against the backend dictionary.
-export async function _7LettersIsValidWord(word: string): Promise<boolean> {
-    const url = new URL(`${import.meta.env.VITE_BACKEND_URL}/validate7LetterWord`)
-    url.searchParams.append('word', word)
-    const response = await fetch(url)
+/**
+ * Submit a full guess sequence to the backend for validation and annotation.
+ * The backend validates each newly-submitted guess against the dictionary,
+ * annotates each letter as "exact" / "misplaced" / "wrong", and returns
+ * the updated sequence along with an optional snackbar message.
+ *
+ * @param guessSequence - The current state of the game (date + guesses).
+ * @returns The annotated guess sequence and an optional snackbar message.
+ * @throws If the backend returns a non-200 status.
+ */
+export async function _7LettersAnnotate7LettersGuessSequence(guessSequence: GuessSequence): Promise<_7LettersAnnotate7LettersGuessSequenceSuccessResponse> {
+    const url = new URL(`${import.meta.env.VITE_BACKEND_URL}/annotate7LettersGuessSequence`)
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(guessSequence)
+    })
     const data = await response.json()
-    return data.isValid
+    if (response.status != 200) {
+        const errorData = data as _7LettersAnnotate7LettersGuessSequenceErrorResponse
+        throw new Error(errorData.error || 'Something went wrong');
+    }
+    return data as _7LettersAnnotate7LettersGuessSequenceSuccessResponse
 }

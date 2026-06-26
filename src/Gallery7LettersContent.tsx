@@ -1,5 +1,10 @@
-import { useState, useEffect, useRef, ChangeEvent, KeyboardEvent, FocusEvent } from 'react';
-import { GetWordOfTheDay, _7LettersIsValidWord } from './utils/utils'
+import { useState, useEffect, useRef, KeyboardEvent } from 'react';
+import {
+    ConfirmWordOfTheDay,
+    _7LettersAnnotate7LettersGuessSequence,
+    GetWordOfTheDay,
+} from './utils/utils'
+import { LetterState, GuessSequence } from './types/_7LettersTypes'
 import { useNavigate } from 'react-router-dom';
 import './styles/Global.css';
 
@@ -9,22 +14,6 @@ const keyboardRow2 = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'];
 const keyboardRow3 = ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '⌫'];
 
 const isSpecialKey = (key: string) => key === 'ENTER' || key === '⌫';
-
-// ── Types ────────────────────────────────────────────────────────────
-type LetterState = "exact" | "misplaced" | "wrong" | null;
-interface GuessSequence {
-    date: string;
-    guesses: Guess[];
-}
-interface Guess {
-    letters: GuessLetter[];
-    submitted: boolean;
-    validWord: boolean | null;
-}
-interface GuessLetter {
-    letter: string;
-    evaluation: LetterState;
-}
 
 // ── Component ────────────────────────────────────────────────────────
 export default function Gallery7LettersContent(): React.ReactElement {
@@ -36,13 +25,13 @@ export default function Gallery7LettersContent(): React.ReactElement {
     const tutorialStorageKey = '7LettersTutorialSeen'
 
     // ── State ────────────────────────────────────────────────────────
-    let [wordOfTheDay, setWordOfTheDay] = useState<string | null>(null)
     let [currentDay, setCurrentDay] = useState<string | null>(null)
     let [snackbarMessage, setSnackbarMessage] = useState<string | null>(null)
     let [guessSequence, setGuessSequence] = useState<GuessSequence | null>(null)
     let [currentGuessNumber, setCurrentGuessNumber] = useState<number | null>(null)
     let [isSolved, setIsSolved] = useState<boolean>(false)
     let [showResult, setShowResult] = useState<boolean>(false)
+    let [puzzleAnswer, setPuzzleAnswer] = useState<string>("???")
     let [showTutorial, setShowTutorial] = useState<boolean>(!window.localStorage.getItem(tutorialStorageKey))
     let [showMenu, setShowMenu] = useState<boolean>(false)
 
@@ -53,7 +42,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
 
     /** Build the localStorage key for a given date. */
     function getGuessSequenceKey(date: string): string {
-        return `7LettersGuessSequence-${currentDay}`
+        return `7LettersGuessSequence-${date}`
     }
 
     /** Persist the current guess sequence to localStorage. */
@@ -157,55 +146,26 @@ export default function Gallery7LettersContent(): React.ReactElement {
      */
     async function validateSubmissions(): Promise<GuessSequence | null> {
         if (guessSequence === null) { return null }
-        let newGuessSequence = structuredClone(guessSequence)
-        for (let [guessIdx, guess] of newGuessSequence.guesses.entries()) {
+        for (let guess of guessSequence.guesses) {
             if (guess.submitted === true && guess.validWord === null) {
-                const isValidWord = await _7LettersIsValidWord(guess.letters.map((x) => x.letter).join(''))
-                if (isValidWord) {
-                    newGuessSequence.guesses[guessIdx]!.validWord = true
-                    newGuessSequence.guesses[guessIdx]!.letters = annotateLetters(newGuessSequence.guesses[guessIdx]!.letters)
-                } else {
-                    setSnackbarMessage(`Invalid word: ${guess.letters.map((x) => x.letter).join('')}`)
-                    newGuessSequence.guesses[guessIdx]!.submitted = false
+                let resp = await _7LettersAnnotate7LettersGuessSequence(guessSequence)
+                if (resp.snackbarMessage) {
+                    setSnackbarMessage(resp.snackbarMessage)
                 }
-                return newGuessSequence
+                return resp.guessSequence
             }
         }
         return null
     }
 
-    /**
-     * Compare a guess against the answer and mark each letter as
-     * "exact", "misplaced", or "wrong".
-     */
-    function annotateLetters(guessLetters: GuessLetter[]): GuessLetter[] {
-        if (wordOfTheDay === null) { return guessLetters }
-        let answer = wordOfTheDay.split('')
-        let newGuessLetters = structuredClone(guessLetters)
-        // exact matches
-        let exactIndexes: number[] = []
-        for (let [idx, guessLetter] of newGuessLetters.entries()) {
-            if (guessLetter.letter === answer[idx]) {
-                newGuessLetters[idx]!.evaluation = 'exact'
-                exactIndexes.push(idx)
-            }
-        }
-        answer = answer.map((letter, idx) => {
-            return exactIndexes.includes(idx) ? '' : letter
-        })
-        // misplaced | wrong
-        for (let [idx, guessLetter] of newGuessLetters.entries()) {
-            if (exactIndexes.includes(idx)) { continue }
-            if (answer.includes(guessLetter.letter)) {
-                newGuessLetters[idx]!.evaluation = 'misplaced'
-            } else {
-                newGuessLetters[idx]!.evaluation = 'wrong'
-            }
-        }
-        return newGuessLetters
-    }
 
-    // return the letter state of the provided key based on the current guessSequence
+    /**
+     * Determine the best letter state for a keyboard key based on all submitted guesses.
+     * Priority order: exact > misplaced > wrong > null.
+     *
+     * @param key - The keyboard letter to check.
+     * @returns The most significant `LetterState` found, or `null` if unused.
+     */
     function getLetterState(key: string): LetterState {
         if (guessSequence === null) { return null }
         let foundWrongState: boolean = false
@@ -244,15 +204,31 @@ export default function Gallery7LettersContent(): React.ReactElement {
 
     /** Fetch the word of the day from the backend on mount. */
     useEffect(() => {
-        GetWordOfTheDay().then(
-            (result) => {
-                setWordOfTheDay(result.wordOfTheDay.toUpperCase())
-                setCurrentDay(result.date)
-            },
-            (error) => {
-                window.alert(`Whoops. There was an error loading the Word Of The Day 😕 Go bother Zach to fix it. (${error})`)
+        (async () => {
+            let alertMessage: string = ""
+            try {
+                const wordOfTheDayConfirmation = await ConfirmWordOfTheDay()
+                console.log("wordOfTheDayConfirmation", wordOfTheDayConfirmation)
+                if (!wordOfTheDayConfirmation.wordOfTheDayPresent) {
+                    alertMessage = `Word of the day missing for ${wordOfTheDayConfirmation.date ? wordOfTheDayConfirmation.date : "UnknownDate"}.`
+                } else if (!wordOfTheDayConfirmation.date) {
+                    alertMessage = `Missing today's date.`
+                } else {
+                    setCurrentDay(wordOfTheDayConfirmation.date)
+                }
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    alertMessage = error.message
+                } else {
+                    // Fallback for when someone threw a string or primitive: throw "flat string"
+                    alertMessage = String(error)
+                }
+            } finally {
+                if (alertMessage) {
+                    window.alert(`Whoops. There was an error confirming the Word Of The Day 😕 Go bother Zach to fix it. (${alertMessage})`)
+                }
             }
-        )
+        })()
     }, [])
 
     /** Auto-dismiss the snackbar after a timeout. */
@@ -268,7 +244,6 @@ export default function Gallery7LettersContent(): React.ReactElement {
 
     /** Restore a saved game or start a fresh one once the word is loaded. */
     useEffect(() => {
-        if (wordOfTheDay === null) { return }
         if (currentDay === null) { return }
         const storedGuessSequence = retrieveGuessSequence(currentDay)
         if (!storedGuessSequence) {
@@ -276,7 +251,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
         } else {
             setGuessSequence(storedGuessSequence)
         }
-    }, [wordOfTheDay, currentDay])
+    }, [currentDay])
 
     /**
      * Core game-loop effect: runs whenever the guess sequence changes.
@@ -329,6 +304,20 @@ export default function Gallery7LettersContent(): React.ReactElement {
             initGuessInSequence()
         })()
     }, [guessSequence])
+
+    /**
+     * Once the result modal is shown, lazily fetch the full puzzle answer
+     * from the backend (without exposing it before the game ends).
+     */
+    useEffect(() => {
+        (async () => {
+            if (!showResult) { return }
+            let resp = await GetWordOfTheDay()
+            if (resp.date !== currentDay) { return }
+            if (!resp.wordOfTheDay) { return }
+            setPuzzleAnswer(resp.wordOfTheDay)
+        })()
+    }, [showResult])
 
     // ── Render: guess grid ───────────────────────────────────────────
 
@@ -499,17 +488,17 @@ export default function Gallery7LettersContent(): React.ReactElement {
             <div className='_7LettersTutorialSection'>
                 <div className='_7LettersTutorialExample'>
                     <div className='_7LettersTutorialRow'>
-                        <div className='_7LettersTutorialSlot'>B</div>
-                        <div className='_7LettersTutorialSlot misplaced'>A</div>
-                        <div className='_7LettersTutorialSlot'>N</div>
+                        <div className='_7LettersTutorialSlot'>C</div>
+                        <div className='_7LettersTutorialSlot misplaced'>H</div>
                         <div className='_7LettersTutorialSlot'>A</div>
-                        <div className='_7LettersTutorialSlot'>N</div>
-                        <div className='_7LettersTutorialSlot'>A</div>
-                        <div className='_7LettersTutorialSlot'>S</div>
+                        <div className='_7LettersTutorialSlot'>P</div>
+                        <div className='_7LettersTutorialSlot'>T</div>
+                        <div className='_7LettersTutorialSlot'>E</div>
+                        <div className='_7LettersTutorialSlot'>R</div>
                     </div>
                 </div>
                 <div className='_7LettersTutorialLabel'>
-                    <strong>A</strong> is in the word but in the wrong position.
+                    <strong>H</strong> is in the word but in the wrong position.
                 </div>
             </div>
             <div className='_7LettersTutorialSection'>
@@ -551,7 +540,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
                 {isSolved ? 'You Won!' : 'You Lost'}
             </div>
             <div className='_7LettersResultAnswer'>
-                The answer was: <strong>{wordOfTheDay}</strong>
+                The answer was: <strong>{puzzleAnswer}</strong>
             </div>
             <div className='_7LettersResultPlayAgain'>
                 Come back tomorrow for a new puzzle!
