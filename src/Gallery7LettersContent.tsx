@@ -208,7 +208,6 @@ export default function Gallery7LettersContent(): React.ReactElement {
             let alertMessage: string = ""
             try {
                 const wordOfTheDayConfirmation = await ConfirmWordOfTheDay()
-                console.log("wordOfTheDayConfirmation", wordOfTheDayConfirmation)
                 if (!wordOfTheDayConfirmation.wordOfTheDayPresent) {
                     alertMessage = `Word of the day missing for ${wordOfTheDayConfirmation.date ? wordOfTheDayConfirmation.date : "UnknownDate"}.`
                 } else if (!wordOfTheDayConfirmation.date) {
