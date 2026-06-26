@@ -315,7 +315,7 @@ export default function Gallery7LettersContent(): React.ReactElement {
             let resp = await GetWordOfTheDay()
             if (resp.date !== currentDay) { return }
             if (!resp.wordOfTheDay) { return }
-            setPuzzleAnswer(resp.wordOfTheDay)
+            setPuzzleAnswer(resp.wordOfTheDay.toUpperCase())
         })()
     }, [showResult])
 
